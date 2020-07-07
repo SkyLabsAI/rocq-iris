@@ -9,7 +9,7 @@ Definition discrete_fun_insert `{EqDecision A} {B : A → ofeT}
 Instance: Params (@discrete_fun_insert) 5 := {}.
 
 Definition discrete_fun_singleton `{EqDecision A} {B : A → ucmraT}
-  (x : A) (y : B x) : discrete_fun B := discrete_fun_insert x y ε.
+  (x : A) (y : B x) : discrete_funT B := discrete_fun_insert x y ε.
 Instance: Params (@discrete_fun_singleton) 5 := {}.
 
 Section ofe.
@@ -52,19 +52,23 @@ Section ofe.
 End ofe.
 
 Section cmra.
-  Context `{EqDecision A} {B : A → ucmraT}.
+  Context `{EqDecision A} {B : A → cmraT}.
+  Context `{Htotal : ∀ x, CmraTotal (B x)}.
   Implicit Types x : A.
   Implicit Types f g : discrete_fun B.
 
   Global Instance discrete_funR_cmra_discrete:
-    (∀ i, CmraDiscrete (B i)) → CmraDiscrete (discrete_funR B).
+    (∀ i, CmraDiscrete (B i)) → CmraDiscrete (discrete_funTR B).
   Proof. intros HB. split; [apply _|]. intros x Hv i. apply HB, Hv. Qed.
+End cmra.
 
+Section cmra.
+  Context `{EqDecision A} {B : A → ucmraT}.
   Global Instance discrete_fun_singleton_ne x :
     NonExpansive (discrete_fun_singleton x : B x → _).
   Proof. intros n y1 y2 ?; apply discrete_fun_insert_ne. done. by apply equiv_dist. Qed.
   Global Instance discrete_fun_singleton_proper x :
-    Proper ((≡) ==> (≡)) (discrete_fun_singleton x) := ne_proper _.
+    Proper ((≡) ==> (≡)) (discrete_fun_singleton x : B x → _) := ne_proper _.
 
   Lemma discrete_fun_lookup_singleton x (y : B x) : (discrete_fun_singleton x y) x = y.
   Proof. by rewrite /discrete_fun_singleton discrete_fun_lookup_insert. Qed.

@@ -1593,18 +1593,22 @@ Section discrete_fun_cmra.
       split; [|split]=>x; [rewrite discrete_fun_lookup_op| |];
       by destruct (FUN x) as (?&?&?&?&?).
   Qed.
-  Canonical Structure discrete_funR := CmraT (discrete_fun B) discrete_fun_cmra_mixin.
+  Canonical Structure discrete_funTR := CmraT (discrete_fun B) discrete_fun_cmra_mixin.
 End discrete_fun_cmra.
 
+Arguments discrete_funTR {_} _ {_}.
+Definition discrete_funT {A} (B : A → ucmraT) := discrete_fun B.
+Canonical Structure discrete_funR {A} (B : A → ucmraT) :=
+  CmraT (discrete_funT B) (cmra_mixin (discrete_funTR B)).
+
 Section discrete_fun_ucmra.
-  Context `{B' : A → ucmraT}.
-  Let B : A → cmraT := B'.
-  Implicit Types f g : discrete_fun B.
+  Context `{B : A → ucmraT}.
+  Implicit Types f g : discrete_funT B.
 
   Instance discrete_fun_unit : Unit (discrete_fun B) := λ x, ε.
   Definition discrete_fun_lookup_empty x : ε x = ε := eq_refl.
 
-  Lemma discrete_fun_ucmra_mixin : UcmraMixin (discrete_fun B).
+  Lemma discrete_fun_ucmra_mixin : UcmraMixin (discrete_funT B).
   Proof.
     split.
     - intros x; apply ucmra_unit_valid.
