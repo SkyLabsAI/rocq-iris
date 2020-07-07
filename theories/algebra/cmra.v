@@ -1546,7 +1546,8 @@ Qed.
 
 (* Dependently-typed functions over a discrete domain *)
 Section discrete_fun_cmra.
-  Context `{B : A → ucmraT}.
+  Context `{B : A → cmraT}.
+  Context `{Htotal : ∀ x, CmraTotal (B x)}.
   Implicit Types f g : discrete_fun B.
 
   Instance discrete_fun_op : Op (discrete_fun B) := λ f g x, f x ⋅ g x.
@@ -1567,7 +1568,7 @@ Section discrete_fun_cmra.
   Qed.
 
   Lemma discrete_fun_cmra_mixin : CmraMixin (discrete_fun B).
-  Proof.
+  Proof using Htotal.
     apply cmra_total_mixin.
     - eauto.
     - by intros n f1 f2 f3 Hf x; rewrite discrete_fun_lookup_op (Hf x).
@@ -1593,6 +1594,12 @@ Section discrete_fun_cmra.
       by destruct (FUN x) as (?&?&?&?&?).
   Qed.
   Canonical Structure discrete_funR := CmraT (discrete_fun B) discrete_fun_cmra_mixin.
+End discrete_fun_cmra.
+
+Section discrete_fun_ucmra.
+  Context `{B' : A → ucmraT}.
+  Let B : A → cmraT := B'.
+  Implicit Types f g : discrete_fun B.
 
   Instance discrete_fun_unit : Unit (discrete_fun B) := λ x, ε.
   Definition discrete_fun_lookup_empty x : ε x = ε := eq_refl.
@@ -1609,7 +1616,7 @@ Section discrete_fun_cmra.
   Global Instance discrete_fun_unit_discrete :
     (∀ i, Discrete (ε : B i)) → Discrete (ε : discrete_fun B).
   Proof. intros ? f Hf x. by apply: discrete. Qed.
-End discrete_fun_cmra.
+End discrete_fun_ucmra.
 
 Arguments discrete_funR {_} _.
 Arguments discrete_funUR {_} _.
