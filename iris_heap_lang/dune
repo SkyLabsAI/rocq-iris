@@ -1,0 +1,12 @@
+(include_subdirs qualified)
+(coq.theory
+ (name iris.heap_lang)
+ ; (package coq-iris)
+
+ (flags (
+   -w -notation-overridden
+   ; non-canonical projections (https://github.com/coq/coq/pull/10076) do not exist yet in 8.9.
+   -w -redundant-canonical-projection
+  ))
+ (theories iris)
+)
