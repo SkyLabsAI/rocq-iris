@@ -13,6 +13,8 @@ Global Arguments bi_wand_iff {_} _%I _%I : simpl never.
 Global Instance: Params (@bi_wand_iff) 1 := {}.
 Infix "∗-∗" := bi_wand_iff : bi_scope.
 
+#[local] Set Typeclasses Strict Resolution.
+
 Class Persistent {PROP : bi} (P : PROP) := persistent : P ⊢ <pers> P.
 Global Arguments Persistent {_} _%I : simpl never.
 Global Arguments persistent {_} _%I {_}.
