@@ -3,11 +3,13 @@ From iris.proofmode Require Import tactics.
 From iris.prelude Require Import options.
 
 (** The class of laterable assertions *)
+#[local] Set Typeclasses Strict Resolution.
 Class Laterable {PROP : bi} (P : PROP) := laterable :
   P -∗ ∃ Q, ▷ Q ∗ □ (▷ Q -∗ ◇ P).
 Global Arguments Laterable {_} _%I : simpl never.
 Global Arguments laterable {_} _%I {_}.
 Global Hint Mode Laterable + ! : typeclass_instances.
+#[local] Unset Typeclasses Strict Resolution.
 
 Section instances.
   Context {PROP : bi}.

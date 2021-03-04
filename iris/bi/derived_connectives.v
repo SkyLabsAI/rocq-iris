@@ -32,6 +32,8 @@ Global Arguments Affine {_} _%I : simpl never.
 Global Arguments affine {_} _%I {_}.
 Global Hint Mode Affine + ! : typeclass_instances.
 
+#[local] Unset Typeclasses Strict Resolution.
+
 Class BiAffine (PROP : bi) := absorbing_bi (Q : PROP) : Affine Q.
 Global Hint Mode BiAffine ! : typeclass_instances.
 Existing Instance absorbing_bi | 0.
@@ -45,6 +47,8 @@ Global Arguments bi_absorbingly {_} _%I : simpl never.
 Global Instance: Params (@bi_absorbingly) 1 := {}.
 Typeclasses Opaque bi_absorbingly.
 Notation "'<absorb>' P" := (bi_absorbingly P) : bi_scope.
+
+#[local] Set Typeclasses Strict Resolution.
 
 Class Absorbing {PROP : bi} (P : PROP) := absorbing : <absorb> P ⊢ P.
 Global Arguments Absorbing {_} _%I : simpl never.
@@ -107,6 +111,7 @@ Global Arguments Timeless {_} _%I : simpl never.
 Global Arguments timeless {_} _%I {_}.
 Global Hint Mode Timeless + ! : typeclass_instances.
 Global Instance: Params (@Timeless) 1 := {}.
+#[local] Unset Typeclasses Strict Resolution.
 
 (** An optional precondition [mP] to [Q].
     TODO: We may actually consider generalizing this to a list of preconditions,

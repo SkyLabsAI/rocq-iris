@@ -319,12 +319,14 @@ Canonical Structure monPredI : bi :=
      bi_bi_later_mixin := monPred_bi_later_mixin |}.
 End canonical.
 
+#[local] Set Typeclasses Strict Resolution.
 Class Objective {I : biIndex} {PROP : bi} (P : monPred I PROP) :=
   objective_at i j : P i -∗ P j.
 Global Arguments Objective {_ _} _%I.
 Global Arguments objective_at {_ _} _%I {_}.
 Global Hint Mode Objective + + ! : typeclass_instances.
 Global Instance: Params (@Objective) 2 := {}.
+#[local] Unset Typeclasses Strict Resolution.
 
 (** Primitive facts that cannot be deduced from the BI structure. *)
 
