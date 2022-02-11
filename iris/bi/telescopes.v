@@ -6,11 +6,11 @@ Import bi.
 (* This cannot import the proofmode because it is imported by the proofmode! *)
 
 (** Telescopic quantifiers *)
-Definition bi_texist {PROP : bi} {TT : tele@{bi.u2}} (Ψ : TT → PROP) : PROP :=
-  tele_fold (@bi_exist PROP) (λ x, x) (tele_bind@{_ bi.u2 _} Ψ).
+Definition bi_texist {PROP : bi} {TT : tele@{bi.LQ}} (Ψ : TT → PROP) : PROP :=
+  tele_fold (@bi_exist PROP) (λ x, x) (tele_bind@{_ bi.LQ _} Ψ).
 Global Arguments bi_texist {_ !_} _ /.
-Definition bi_tforall {PROP : bi} {TT : tele@{bi.u1}} (Ψ : TT → PROP) : PROP :=
-  tele_fold (@bi_forall PROP) (λ x, x) (tele_bind@{_ bi.u1 _} Ψ).
+Definition bi_tforall {PROP : bi} {TT : tele@{bi.LQ}} (Ψ : TT → PROP) : PROP :=
+  tele_fold (@bi_forall PROP) (λ x, x) (tele_bind@{_ bi.LQ _} Ψ).
 Global Arguments bi_tforall {_ !_} _ /.
 
 Notation "'∃..' x .. y , P" := (bi_texist (λ x, .. (bi_texist (λ y, P)) .. )%I)
@@ -21,7 +21,7 @@ Notation "'∀..' x .. y , P" := (bi_tforall (λ x, .. (bi_tforall (λ y, P)) ..
   format "∀..  x  ..  y ,  P") : bi_scope.
 
 Section telescopes.
-  Context {PROP : bi} {TT : tele@{bi.u2}}.
+  Context {PROP : bi} {TT : tele@{bi.LQ}}.
   Implicit Types Ψ : TT → PROP.
 
   Lemma bi_tforall_forall Ψ : bi_tforall Ψ ⊣⊢ bi_forall Ψ.
