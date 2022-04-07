@@ -243,7 +243,8 @@ Notation "'(⊣⊢@{' PROP } )" := (equiv (A:=bi_car PROP)) (only parsing) : std
 Notation "( P ⊣⊢.)" := (equiv (A:=bi_car _) P) (only parsing) : stdpp_scope.
 Notation "(.⊣⊢ Q )" := (λ P, P ≡@{bi_car _} Q) (only parsing) : stdpp_scope.
 
-Notation "P -∗ Q" := (P ⊢ Q) : stdpp_scope.
+#[deprecated(note="-∗ is deprecated notation at the top-level, use ⊢")]
+Notation "P -∗ Q" := (P ⊢ Q) (only parsing) : stdpp_scope.
 
 Notation "'emp'" := (bi_emp) : bi_scope.
 Notation "'⌜' φ '⌝'" := (bi_pure φ%type%stdpp) : bi_scope.
@@ -265,6 +266,9 @@ Notation "∃ x .. y , P" :=
 Notation "'<pers>' P" := (bi_persistently P) : bi_scope.
 
 Notation "▷ P" := (bi_later P) : bi_scope.
+
+Set Printing All.
+Check forall {PROP : bi} (P Q R : PROP), P -∗ Q ⊢ R.
 
 Definition bi_emp_valid {PROP : bi} (P : PROP) : Prop := emp ⊢ P.
 

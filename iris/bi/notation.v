@@ -2,15 +2,15 @@ From iris.prelude Require Import options.
 (** Just reserve the notation. *)
 
 (** * Turnstiles *)
-Reserved Notation "P ⊢ Q" (at level 99, Q at level 200, right associativity).
-Reserved Notation "P '⊢@{' PROP } Q" (at level 99, Q at level 200, right associativity).
+Reserved Notation "P ⊢ Q" (at level 100, Q at level 200, right associativity).
+Reserved Notation "P '⊢@{' PROP } Q" (at level 100, Q at level 200, right associativity).
 Reserved Notation "(⊢)".
 Reserved Notation "'(⊢@{' PROP } )".
 Reserved Notation "( P ⊣⊢.)".
 Reserved Notation "(.⊣⊢ Q )".
 
-Reserved Notation "P ⊣⊢ Q" (at level 95, no associativity).
-Reserved Notation "P '⊣⊢@{' PROP } Q" (at level 95, no associativity).
+Reserved Notation "P ⊣⊢ Q" (at level 100, no associativity).
+Reserved Notation "P '⊣⊢@{' PROP } Q" (at level 100, no associativity).
 Reserved Notation "(⊣⊢)".
 Reserved Notation "'(⊣⊢@{' PROP } )".
 Reserved Notation "(.⊢ Q )".
@@ -36,7 +36,7 @@ Reserved Notation "'emp'".
 Reserved Notation "'⌜' φ '⌝'" (at level 1, φ at level 200, format "⌜ φ ⌝").
 Reserved Notation "P ∗ Q" (at level 80, right associativity, format "P  ∗  '/' Q").
 Reserved Notation "P -∗ Q"
-  (at level 99, Q at level 200, right associativity,
+  (at level 99, Q at level 99, right associativity,
    format "'[' P  -∗  '/' '[' Q ']' ']'").
 
 Reserved Notation "⎡ P ⎤".

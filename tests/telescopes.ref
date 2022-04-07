@@ -20,7 +20,7 @@
   E1, E2 : coPset
   α, β, γ1, γ2 : X → PROP
   ============================
-  accessor E1 E2 α β γ1 -∗ accessor E1 E2 α β (λ.. x : X, γ1 x ∨ γ2 x)
+  accessor E1 E2 α β γ1 ⊢ accessor E1 E2 α β (λ.. x : X, γ1 x ∨ γ2 x)
 1 goal
   
   PROP : bi
