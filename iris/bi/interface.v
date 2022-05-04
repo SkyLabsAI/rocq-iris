@@ -164,8 +164,13 @@ Section bi_mixin.
   Qed.
 End bi_mixin.
 
+(* [L] is the universe of the logic *)
+Universe L.
+(* [LQ] is the universe of quantifiers in the logic *)
+Universe LQ.
+
 Structure bi := Bi {
-  bi_car :> Type;
+  bi_car :> Type@{L};
   bi_dist : Dist bi_car;
   bi_equiv : Equiv bi_car;
   bi_entails : bi_car → bi_car → Prop;
@@ -174,8 +179,8 @@ Structure bi := Bi {
   bi_and : bi_car → bi_car → bi_car;
   bi_or : bi_car → bi_car → bi_car;
   bi_impl : bi_car → bi_car → bi_car;
-  bi_forall : ∀ A, (A → bi_car) → bi_car;
-  bi_exist : ∀ A, (A → bi_car) → bi_car;
+  bi_forall : ∀ A : Type@{LQ}, (A → bi_car) → bi_car;
+  bi_exist : ∀ A : Type@{LQ}, (A → bi_car) → bi_car;
   bi_sep : bi_car → bi_car → bi_car;
   bi_wand : bi_car → bi_car → bi_car;
   bi_persistently : bi_car → bi_car;
