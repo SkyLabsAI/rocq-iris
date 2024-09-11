@@ -8,8 +8,9 @@ From iris.prelude Require Import options.
 
 (** The CMRA we need. *)
 Class tokenG Σ := TokenG {
-  #[local] token_inG :: inG Σ (exclR unitO);
+  token_inG : inG Σ (exclR unitO);
 }.
+Local Existing Instance token_inG.
 Global Hint Mode tokenG - : typeclass_instances.
 
 Definition tokenΣ : gFunctors :=

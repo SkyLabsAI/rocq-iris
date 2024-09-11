@@ -10,11 +10,6 @@ lemma.
 * Add lemmas `big_opS_gset_to_gmap` and `big_opS_gset_to_gmap_L`, which rewrite
   between `gset_to_gmap` and big set ops of singleton maps.  (by Isaac van
   Bakel)
-* Add lemmas `discrete_fun_update` and `discrete_fun_updateP`, which updates an
-  abitrary `discrete_fun` to another. For `discrete_fun_updateP`, this requires
-  the domain to be finite, similar to `discrete_fun_included_spec`. (by Janggun Lee)
-* Add lemmas `discrete_fun_singleton_valid` and `discrete_fun_singleton_unit`, which simplify 
-  cmra validity and unit used with `discrete_fun_singleton`. (by Janggun Lee)
 
 **Changes in `proofmode`:**
 
@@ -24,11 +19,6 @@ lemma.
   invariant opening.
 * Change `iInduction` to always generate a magic wand instead of sometimes
   generating an implication for reverted hypotheses.
-* Add `iUnfold` tactic.
-* Improve ability to name induction hypotheses (IHs) in `iInduction`: when
-  performing `iInduction x as cpat` the names of the IHs in the Coq introduction
-  pattern `cpat` are used to name the IHs in the proof mode context. For
-  example, `iInduction n as [|n IH]` and `iInduction t as [|l IHl r IHr]`.
 
 **Changes in `base_logic`:**
 
@@ -41,17 +31,10 @@ lemma.
 **Changes in `heap_lang`:**
 
 * Make `wp_cmpxchg_fail` work when the points-to is in the persistent context.
-* Seal definition of `pointsto`, add copies of all relevant lemmas.
 
 **Infrastructure:**
 
 * Add support for compiling the packages with dune. (by Rodolphe Lepigre) 
-
-**Changes in `bi`:**
-
-* Add instances for `match _ with _ end` (and thus `if _ then _ else` and
-  `'(_, _)` pair destructuring) for `Persistent`, `Affine`, `Absorbing`,
-  `Timeless`, and `Plain`. (by Sanjit Bhat)
 
 ## Iris 4.2.0 (2024-04-12)
 
@@ -715,7 +698,7 @@ everyone involved!
 
 * Define non-expansive instance for `dom`. This, in particular, makes it
   possible to `iRewrite` below `dom` (even if the `dom` appears in `⌜ _ ⌝`).
-* Generalize the authoritative elements of `gmap_view` to be parameterized by a
+* Generalize the authorative elements of `gmap_view` to be parameterized by a
   [discardable fraction](iris/algebra/dfrac.v) (`dfrac`) instead of a fraction
   (`frac`). Lemmas affected by this have been renamed such that the "frac" in
   their name has been changed into "dfrac". (by Simon Friis Vindum)
@@ -762,7 +745,7 @@ everyone involved!
   propositions that want to support framing are expected to register an
   appropriate instance themselves. HeapLang and gen_heap `↦` still support
   framing, but the other fractional propositions in Iris do not.
-* Strengthen the `Persistent`/`Affine`/`Timeless` results for big ops. Add a `'`
+* Strenghten the `Persistent`/`Affine`/`Timeless` results for big ops. Add a `'`
   to the name of the weaker results, which remain to be used as instances.
 
 **Changes in `heap_lang`:**
@@ -820,7 +803,7 @@ Chajed, and Yusuke Matsushita. Thanks a lot to everyone involved!
 
 **Changes in `algebra`:**
 
-* Generalize the authoritative elements of the `view`, `auth` and `gset_bij`
+* Generalize the authorative elements of the `view`, `auth` and `gset_bij`
   cameras to be parameterized by a [discardable fraction](iris/algebra/dfrac.v)
   (`dfrac`) instead of a fraction (`frac`). Normal fractions are now denoted
   `●{#q} a` and `●V{#q} a`. Lemmas affected by this have been renamed such that
@@ -928,7 +911,7 @@ Chajed, and Yusuke Matsushita. Thanks a lot to everyone involved!
 * Add `ghost_map`, a logic-level library for a `gmap K V` with an authoritative
   view and per-element points-to facts written `k ↪[γ] w`.
 * Generalize the soundness lemma of the base logic `step_fupdN_soundness`.
-  It applies even if invariants stay open across an arbitrary number of laters.
+  It applies even if invariants stay open accross an arbitrary number of laters.
   (by Jacques-Henri Jourdan)
 * Rename those `*G` typeclasses that must be global singletons to `*GS`, and
   their corresponding `preG` class to `GpreS`. Affects `invG`, `irisG`,
@@ -938,7 +921,7 @@ Chajed, and Yusuke Matsushita. Thanks a lot to everyone involved!
 
 * Change definition of weakest precondition to use a variable number of laters
   (i.e., logical steps) for each physical step of the operational semantics,
-  depending on the number of physical steps executed since the beginning of the
+  depending on the number of physical steps executed since the begining of the
   execution of the program. See merge request [!595](https://gitlab.mpi-sws.org/iris/iris/-/merge_requests/595).
   This implies several API-breaking changes, which can be easily fixed in client
   formalizations in a backward compatible manner as follows:

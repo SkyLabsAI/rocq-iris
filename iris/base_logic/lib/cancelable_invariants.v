@@ -5,7 +5,8 @@ From iris.base_logic.lib Require Export invariants.
 From iris.prelude Require Import options.
 Import uPred.
 
-Class cinvG Σ := { #[local] cinv_inG :: inG Σ fracR }.
+Class cinvG Σ := { cinv_inG : inG Σ fracR }.
+Local Existing Instance cinv_inG.
 
 Definition cinvΣ : gFunctors := #[GFunctor fracR].
 

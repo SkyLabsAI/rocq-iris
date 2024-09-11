@@ -673,7 +673,7 @@ Proof.
   _exactly_ once. This test shows that after finding a way to frame "HΦ1" on
   the left-hand side of the disjunction (and instantiating [n = 0] and [m = 1])
   the second way of framing "HΦ1" in the left-hand side is not considered,
-  even though this would cause the framing to be successful on the right-hand
+  even though this would cause the framing to be succesful on the right-hand
   side. Considering multiple successes can cause exponential blowups, see above *)
 Abort.
 
@@ -989,14 +989,14 @@ Lemma test_iInduction_wf (x : nat) P Q :
   □ P -∗ Q -∗ ⌜ (x + 0 = x)%nat ⌝.
 Proof.
   iIntros "#HP HQ".
-  iInduction (lt_wf x) as [[|x] _ IH]; simpl; first done.
+  iInduction (lt_wf x) as [[|x] _] "IH"; simpl; first done.
   rewrite (inj_iff S). by iApply ("IH" with "[%]"); first lia.
 Qed.
 
 Lemma test_iInduction_using (m : gmap nat nat) (Φ : nat → nat → PROP) y :
   ([∗ map] x ↦ i ∈ m, Φ y x) -∗ ([∗ map] x ↦ i ∈ m, emp ∗ Φ y x).
 Proof.
-  iIntros "Hm". iInduction m as [|i x m ? IH] using map_ind forall (y).
+  iIntros "Hm". iInduction m as [|i x m] "IH" using map_ind forall(y).
   - by rewrite !big_sepM_empty.
   - rewrite !big_sepM_insert //. iDestruct "Hm" as "[$ ?]".
     by iApply "IH".
@@ -1010,7 +1010,7 @@ Lemma test_iInduction_big_sepL_impl' {A} (Φ Ψ : nat → A → PROP) (l1 l2 : l
   [∗ list] k↦x ∈ l2, Ψ k x.
 Proof.
   iIntros (Hlen) "Hl #Himpl".
-  iInduction l1 as [|x1 l1 IH] forall (Φ Ψ l2 Hlen).
+  iInduction l1 as [|x1 l1] "IH" forall (Φ Ψ l2 Hlen).
 Abort.
 
 Inductive tree := leaf | node (l r: tree).
@@ -1019,45 +1019,7 @@ Check "test_iInduction_multiple_IHs".
 Lemma test_iInduction_multiple_IHs (t: tree) (Φ : tree → PROP) :
   □ Φ leaf -∗ □ (∀ l r, Φ l -∗ Φ r -∗ Φ (node l r)) -∗ Φ t.
 Proof.
-  iIntros "#Hleaf #Hnode". iInduction t as [|l IHl r IHr].
-  - iExact "Hleaf".
-  - Show. (* should have "IHl" and "IHr", since [node] has two trees *)
-    iApply ("Hnode" with "IHl IHr").
-Qed.
-
-(* Copies of the above tests for the legacy syntax of naming IHs *)
-Lemma test_iInduction_wf_legacy (x : nat) P Q :
-  □ P -∗ Q -∗ ⌜ (x + 0 = x)%nat ⌝.
-Proof.
-  iIntros "#HP HQ".
-  iInduction (lt_wf x) as [[|x] _] "IH"; simpl; first done.
-  rewrite (inj_iff S). by iApply ("IH" with "[%]"); first lia.
-Qed.
-
-Lemma test_iInduction_using_legacy (m : gmap nat nat) (Φ : nat → nat → PROP) y :
-  ([∗ map] x ↦ i ∈ m, Φ y x) -∗ ([∗ map] x ↦ i ∈ m, emp ∗ Φ y x).
-Proof.
-  iIntros "Hm". iInduction m as [|i x m ?] "IH" using map_ind forall (y).
-  - by rewrite !big_sepM_empty.
-  - rewrite !big_sepM_insert //. iDestruct "Hm" as "[$ ?]".
-    by iApply "IH".
-Qed.
-
-Lemma test_iInduction_big_sepL_impl' {A} (Φ Ψ : nat → A → PROP) (l1 l2 : list A) :
-  length l1 = length l2 →
-  ([∗ list] k↦x ∈ l1, Φ k x) -∗
-  □ (∀ k x1 x2, ⌜l1 !! k = Some x1⌝ -∗ ⌜l2 !! k = Some x2⌝ -∗ Φ k x1 -∗ Ψ k x2) -∗
-  [∗ list] k↦x ∈ l2, Ψ k x.
-Proof.
-  iIntros (Hlen) "Hl #Himpl".
-  iInduction l1 as [|x1 l1] "IH" forall (Φ Ψ l2 Hlen).
-Abort.
-
-Check "test_iInduction_multiple_IHs_legacy".
-Lemma test_iInduction_multiple_IHs_legacy (t: tree) (Φ : tree → PROP) :
-  □ Φ leaf -∗ □ (∀ l r, Φ l -∗ Φ r -∗ Φ (node l r)) -∗ Φ t.
-Proof.
-  iIntros "#Hleaf #Hnode". iInduction t as [|l ? r] "IH".
+  iIntros "#Hleaf #Hnode". iInduction t as [|l r] "IH".
   - iExact "Hleaf".
   - Show. (* should have "IH" and "IH1", since [node] has two trees *)
     iApply ("Hnode" with "IH IH1").
@@ -1348,18 +1310,6 @@ Proof. iIntros "#H1 H2". iSimpl in "#". Show. done. Qed.
 Check "test_iSimpl_in4".
 Lemma test_iSimpl_in4 x y : ⌜ (3 + x)%nat = y ⌝ ⊢@{PROP} ⌜ S (S (S x)) = y ⌝.
 Proof. iIntros "H". Fail iSimpl in "%". by iSimpl in "H". Qed.
-
-Section iUnfold.
-  Definition def1 := 10.
-  Definition def2 := def1.
-  Check "test_iUnfold".
-  Lemma test_iUnfold : def2 = 10 → ⊢@{PROP} ⌜ def2 = 10 ⌝.
-  Proof. intros Hdef. iUnfold def2, def1. Show. done. Qed.
-
-  Check "test_iUnfold_in".
-  Lemma test_iUnfold_in : def2 = 10 → ⌜ def2 = 10 ⌝ ⊢@{PROP} ⌜ def2 = 10 ⌝.
-  Proof. iIntros "%Hdef Hdef". iUnfold def2, def1 in "Hdef". Show. done. Qed.
-End iUnfold.
 
 Check "test_iRename".
 Lemma test_iRename P : □P -∗ P.
@@ -1657,11 +1607,11 @@ Lemma test_iInduction_revert_pure (n : nat) (Hn : 0 < n) (P : nat → PROP) :
   ⊢ P n.
 Proof.
   (* Check that we consistently get [<affine> _ -∗], not [→] *)
-  iInduction n as [|n IH] forall (Hn); first lia.
+  iInduction n as [|n] "IH" forall (Hn); first lia.
   Show.
 Restart.
 Proof.
-  iInduction n as [|n IH]; first lia.
+  iInduction n as [|n] "IH"; first lia.
   Show.
 Abort.
 
@@ -1670,11 +1620,11 @@ Lemma test_iInduction_revert_pure_affine `{!BiAffine PROP}
   (n : nat) (Hn : 0 < n) (P : nat → PROP) : ⊢ P n.
 Proof.
   (* Check that we consistently get [-∗], not [→]; and no [<affine>] *)
-  iInduction n as [|n IH] forall (Hn); first lia.
+  iInduction n as [|n] "IH" forall (Hn); first lia.
   Show.
 Restart.
 Proof.
-  iInduction n as [|n IH]; first lia.
+  iInduction n as [|n] "IH"; first lia.
   Show.
 Abort.
 
@@ -1979,13 +1929,6 @@ Check "iRevert_fail".
 Lemma iRevert_fail P : P -∗ P.
 Proof. Fail iRevert "H". Abort.
 
-Check "iDestruct_exist_not_fresh_fail".
-Lemma iDestruct_exist_not_fresh_fail P (Φ : nat → PROP) :
-  P ∗ (∃ y, Φ y) -∗ ∃ x, P ∗ Φ x.
-Proof.
-  iIntros "[H HP2]". Fail iDestruct "HP2" as "[%x H]".
-Abort.
-
 Check "iDestruct_fail".
 Lemma iDestruct_fail P : P -∗ <absorb> P.
 Proof.
@@ -2092,27 +2035,7 @@ Check "iInduction_wrong_sel_pat".
 Lemma iInduction_wrong_sel_pat (n m : nat) (P Q : nat → PROP) :
   ⌜ n = m ⌝ -∗ P n -∗ P m.
 Proof.
-  Fail iInduction n as [|n IH] forall m.
-Abort.
-
-Check "iInduction_non_fresh_IH".
-Lemma iInduction_non_fresh_IH Q (P : nat → PROP) n :
-  □ Q -∗ P n.
-Proof.
-  iIntros "IH".
-  Fail iInduction n as [|n IH].
-  Fail iInduction n as [|n] "IH".
-Abort.
-
-Check "iInduction_non_fresh_Coq_IH".
-Lemma iInduction_non_fresh_Coq_IH φ (P : nat → PROP) n :
-  □ ⌜ φ ⌝ -∗ P n.
-Proof.
-  iIntros (IH).
-  (* Names for IHs should also be fresh in Coq context *)
-  Fail iInduction n as [|n IH].
-  (* But for the legacy syntax this is no problem. *)
-  iInduction n as [|n] "IH".
+  Fail iInduction n as [|n] "IH" forall m.
 Abort.
 
 Check "test_iIntros_let_entails_fail".
@@ -2345,7 +2268,7 @@ Section mutual_induction.
     □ (∀ l, (∀ x, ⌜ x ∈ l ⌝ → P x) -∗ P (Tree l)) -∗
     ∀ t, P t.
   Proof.
-    iIntros "#H" (t). iInduction t as [l IH].
+    iIntros "#H" (t). iInduction t as [] "IH".
     Show. (* make sure that the induction hypothesis is exactly what we want *)
     iApply "H". iIntros (x ?). by iApply (big_sepL_elem_of with "IH").
   Qed.
@@ -2372,7 +2295,7 @@ Section mutual_induction.
     ∀ t, P t.
   Proof.
     iIntros "#H" (t).
-    Fail iInduction t as [l IH] using ntree_ind_alt.
+    Fail iInduction t as [] "IH" using ntree_ind_alt.
   Abort.
 End mutual_induction.
 

@@ -6,7 +6,7 @@ From iris.prelude Require Import options.
 Import uPred.
 
 (** This file contains the adequacy statements of the Iris program logic. First
-we prove a number of auxiliary results. *)
+we prove a number of auxilary results. *)
 
 Section adequacy.
 Context `{!irisGS_gen hlc Λ Σ}.
@@ -249,7 +249,7 @@ Proof.
   iMod 1 as (nt') "(Hσ & Hval) /=".
   iDestruct (big_sepL2_app_inv_r with "Hval") as (es' t2' ->) "[Hes' Ht2']".
   iDestruct (big_sepL2_length with "Ht2'") as %Hlen2.
-  rewrite length_replicate in Hlen2; subst.
+  rewrite replicate_length in Hlen2; subst.
   iDestruct (big_sepL2_length with "Hes'") as %Hlen3.
   rewrite -plus_n_O.
   iApply ("Hφ" with "[//] [%] [ ] Hσ Hes'");

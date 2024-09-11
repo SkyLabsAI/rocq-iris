@@ -230,14 +230,6 @@ Tactic Notation "iEval" tactic3(t) "in" constr(Hs) :=
 Tactic Notation "iSimpl" := iEval (simpl).
 Tactic Notation "iSimpl" "in" constr(H) := iEval (simpl) in H.
 
-Ltac _iUnfold r := iEval (unfold r).
-Tactic Notation "iUnfold" ne_reference_list_sep(ids,",") :=
-  ltac1_list_iter _iUnfold ids.
-
-Ltac _iUnfold_in r H := iEval (unfold r) in H.
-Tactic Notation "iUnfold" ne_reference_list_sep(ids,",") "in" constr(H) :=
-  ltac1_list_iter ltac:(fun r => _iUnfold_in r H) ids.
-
 (* It would be nice to also have an `iSsrRewrite`, however, for this we need to
 pass arguments to Ssreflect's `rewrite` like `/= foo /bar` in Ltac, see:
 
@@ -418,8 +410,7 @@ Ltac iFrameAnyIntuitionistic :=
     match Hs with [] => idtac | ?H :: ?Hs => repeat iFrameHyp H; go Hs end in
   match goal with
   | |- envs_entails ?Δ _ =>
-     (* [lazy] because [Δ] involves user terms *)
-     let Hs := eval lazy in (env_dom (env_intuitionistic Δ)) in go Hs
+     let Hs := eval cbv in (env_dom (env_intuitionistic Δ)) in go Hs
   end.
 
 Ltac iFrameAnySpatial :=
@@ -428,8 +419,7 @@ Ltac iFrameAnySpatial :=
     match Hs with [] => idtac | ?H :: ?Hs => try iFrameHyp H; go Hs end in
   match goal with
   | |- envs_entails ?Δ _ =>
-     (* [lazy] because [Δ] involves user terms *)
-     let Hs := eval lazy in (env_dom (env_spatial Δ)) in go Hs
+     let Hs := eval cbv in (env_dom (env_spatial Δ)) in go Hs
   end.
 
 Local Ltac _iFrame_go Hs :=
@@ -1023,8 +1013,7 @@ Tactic Notation "iSpecializeCore" open_constr(H)
        (* Check if we should use [tac_specialize_intuitionistic_helper]. Notice
        that [pm_eval] does not unfold [use_tac_specialize_intuitionistic_helper],
        so we should do that first. *)
-       (* [lazy] because [Δ] involves user terms *)
-       let b := eval lazy [use_tac_specialize_intuitionistic_helper] in
+       let b := eval cbv [use_tac_specialize_intuitionistic_helper] in
          (if p then use_tac_specialize_intuitionistic_helper Δ pat else false) in
        lazymatch eval pm_eval in b with
        | true =>
@@ -1033,8 +1022,7 @@ Tactic Notation "iSpecializeCore" open_constr(H)
           lazymatch iTypeOf H with
           | Some (?q, _) =>
              let PROP := iBiOfGoal in
-             (* [lazy] because [PROP] involves user terms *)
-             lazymatch eval lazy in (q || tc_to_bool (BiAffine PROP)) with
+             lazymatch eval compute in (q || tc_to_bool (BiAffine PROP)) with
              | true =>
                 notypeclasses refine (tac_specialize_intuitionistic_helper _ H _ _ _ _ _ _ _ _ _ _);
                   [pm_reflexivity
@@ -1293,7 +1281,7 @@ Local Tactic Notation "iExistDestruct" constr(H)
     intros _;
     let y := fresh name in
     intros y; pm_reduce;
-    lazymatch goal with
+    match goal with
     | |- False =>
       let Hx := pretty_ident Hx in
       fail "iExistDestruct:" Hx "not fresh"
@@ -1688,7 +1676,7 @@ Tactic Notation "iDestructCore" open_constr(lem) "as" constr(p) tactic3(tac) :=
      (** This case is used to make the tactic work in [Z_scope]. It would be
      better if we could bind tactic notation arguments to notation scopes, but
      that is not supported by Ltac. *)
-     let n := eval cbv in (Z.to_nat lem) in intro_destruct n
+     let n := eval compute in (Z.to_nat lem) in intro_destruct n
   | ident => tac lem
   | string => tac constr:(INamed lem)
   | _ => iPoseProofCore lem as p tac
@@ -1736,11 +1724,7 @@ result in the following actions:
 - Introduce the pure hypotheses [x1..xn]
 - Introduce the spatial hypotheses and intuitionistic hypotheses involving [x]
 - Introduce the proofmode hypotheses [Hs]
-
-The argument [IH] in the tactics below is either [Some "IH"], in which case
-the induction hypotheses are named "IH", "IH1", "IH2" (used for the legacy
-syntax), or [None], in which case the names from the Coq introduction pattern
-are used (they are converted from idents into strings). *)
+*)
 Tactic Notation "iInductionCore" tactic3(tac) "as" constr(IH) :=
   let rec fix_ihs rev_tac :=
     lazymatch goal with
@@ -1754,19 +1738,11 @@ Tactic Notation "iInductionCore" tactic3(tac) "as" constr(IH) :=
           fail "iInduction: spatial context not empty, this should not happen"
          |clear H];
        fix_ihs ltac:(fun j =>
-         (* Written in CPS style because [ident_to_string_cps] is CPS. *)
-         let cont IH' :=
-           iIntros [IIntuitionistic (IIdent IH')];
-           let j := eval vm_compute in (1 + j)%N in
-           rev_tac j in
-         match IH with
-         | Some ?IH =>
-            let IH' := eval vm_compute in
-              match j with 0%N => IH | _ => IH +:+ pretty j end in
-            cont IH'
-         | None =>
-            ident_to_string_cps ident:(H) cont
-         end)
+         let IH' := eval vm_compute in
+           match j with 0%N => IH | _ => IH +:+ pretty j end in
+         iIntros [IIntuitionistic (IIdent IH')];
+         let j := eval vm_compute in (1 + j)%N in
+         rev_tac j)
     | _ => rev_tac 0%N
     end in
   tac ();
@@ -1801,60 +1777,33 @@ Ltac _iInduction0 x Hs tac IH :=
   with_ltac1_nil ltac:(fun xs => _iInduction x xs Hs tac IH).
 
 (* Without induction scheme *)
-(* legacy syntax *)
 Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH) :=
-  _iInduction0 x "" ltac:(fun _ => induction x as pat) (Some IH).
+  _iInduction0 x "" ltac:(fun _ => induction x as pat) IH.
 Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "forall" "(" ne_ident_list(xs) ")" :=
-  _iInduction x xs "" ltac:(fun _ => induction x as pat) (Some IH).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
-    "forall" constr(Hs) :=
-  _iInduction0 x Hs ltac:(fun _ => induction x as pat) (Some IH).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
-    "forall" "(" ne_ident_list(xs) ")" constr(Hs) :=
-  _iInduction x xs Hs ltac:(fun _ => induction x as pat) (Some IH).
+  _iInduction x xs "" ltac:(fun _ => induction x as pat) IH.
 
-(* new syntax that uses IH names from Coq intro pattern *)
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) :=
-  _iInduction0 x "" ltac:(fun _ => induction x as pat) (@None string).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
-    "forall" "(" ne_ident_list(xs) ")" :=
-  _iInduction x xs "" ltac:(fun _ => induction x as pat) (@None string).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
+Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "forall" constr(Hs) :=
-  _iInduction0 x Hs ltac:(fun _ => induction x as pat) (@None string).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
+  _iInduction0 x Hs ltac:(fun _ => induction x as pat) IH.
+Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "forall" "(" ne_ident_list(xs) ")" constr(Hs) :=
-  _iInduction x xs Hs ltac:(fun _ => induction x as pat) (@None string).
+  _iInduction x xs Hs ltac:(fun _ => induction x as pat) IH.
 
 (* With induction scheme *)
-(* legacy syntax *)
 Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "using" uconstr(u) :=
-  _iInduction0 x "" ltac:(fun _ => induction x as pat using u) (Some IH).
+  _iInduction0 x "" ltac:(fun _ => induction x as pat using u) IH.
 Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "using" uconstr(u) "forall" "(" ne_ident_list(xs) ")" :=
-  _iInduction x xs "" ltac:(fun _ => induction x as pat using u) (Some IH).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
-    "using" uconstr(u) "forall" constr(Hs) :=
-  _iInduction0 x Hs ltac:(fun _ => induction x as pat using u) (Some IH).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
-    "using" uconstr(u) "forall" "(" ne_ident_list(xs) ")" constr(Hs) :=
-  _iInduction x xs Hs ltac:(fun _ => induction x as pat using u) (Some IH).
+  _iInduction x xs "" ltac:(fun _ => induction x as pat using u) IH.
 
-(* new syntax that uses IH names from Coq intro pattern *)
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
-    "using" uconstr(u) :=
-  _iInduction0 x "" ltac:(fun _ => induction x as pat using u) (@None string).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
-    "using" uconstr(u) "forall" "(" ne_ident_list(xs) ")" :=
-  _iInduction x xs "" ltac:(fun _ => induction x as pat using u) (@None string).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
+Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "using" uconstr(u) "forall" constr(Hs) :=
-  _iInduction0 x Hs ltac:(fun _ => induction x as pat using u) (@None string).
-Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat)
+  _iInduction0 x Hs ltac:(fun _ => induction x as pat using u) IH.
+Tactic Notation "iInduction" constr(x) "as" simple_intropattern(pat) constr(IH)
     "using" uconstr(u) "forall" "(" ne_ident_list(xs) ")" constr(Hs) :=
-  _iInduction x xs Hs ltac:(fun _ => induction x as pat using u) (@None string).
+  _iInduction x xs Hs ltac:(fun _ => induction x as pat using u) IH.
 
 (** * Löb Induction *)
 Tactic Notation "iLöbCore" "as" constr (IH) :=

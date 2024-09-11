@@ -10,14 +10,15 @@ Import uPred.
 
 (** The ghost state for later credits *)
 Class lcGpreS (Σ : gFunctors) := LcGpreS {
-  #[local] lcGpreS_inG :: inG Σ (authR natUR)
+  lcGpreS_inG : inG Σ (authR natUR)
 }.
 
 Class lcGS (Σ : gFunctors) := LcGS {
-  #[local] lcGS_inG :: inG Σ (authR natUR);
+  lcGS_inG : inG Σ (authR natUR);
   lcGS_name : gname;
 }.
 Global Hint Mode lcGS - : typeclass_instances.
+Local Existing Instances lcGS_inG lcGpreS_inG.
 
 Definition lcΣ := #[GFunctor (authR (natUR))].
 Global Instance subG_lcΣ {Σ} : subG lcΣ Σ → lcGpreS Σ.
@@ -379,7 +380,7 @@ Module le_upd.
     iPoseProof (H C) as "Hc". iSpecialize ("Hc" with "H◯").
     iPoseProof (le_upd_elim_complete m with "H● Hc") as "H".
     simpl. iMod "H". iModIntro. iNext.
-    clear H. iInduction m as [|m IH]; simpl; [done|].
+    clear H. iInduction m as [|m] "IH"; simpl; [done|].
     iMod "H". iNext. by iApply "IH".
   Qed.
 End le_upd.

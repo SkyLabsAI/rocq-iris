@@ -77,20 +77,9 @@ Next Obligation.
   by iMod (steps_auth_update_S with "H") as "$".
 Qed.
 
-(** Since we use an [option val] instance of [gen_heap], we need to add a
-[Some]. We also seal the definition to avoid confusion between the version from
-[gen_heap], and our version with [Some]. That also helps for scopes and
-coercions. *)
-Local Definition pointsto_def `{heapGS_gen hlc Σ}
-    (l : loc) (dq : dfrac) (v : val) : iProp Σ :=
-  pointsto l dq (Some v).
-Local Definition pointsto_aux : seal (@pointsto_def). Proof. by eexists. Qed.
-Definition pointsto := pointsto_aux.(unseal).
-Local Definition pointsto_unseal :
-  @pointsto = @pointsto_def := pointsto_aux.(seal_eq).
-Global Arguments pointsto {hlc Σ _}.
-
-Notation "l ↦ dq v" := (pointsto l dq v)
+(** Since we use an [option val] instance of [gen_heap], we need to overwrite
+the notations.  That also helps for scopes and coercions. *)
+Notation "l ↦ dq v" := (pointsto (L:=loc) (V:=option val) l dq (Some v%V))
   (at level 20, dq custom dfrac at level 1, format "l  ↦ dq  v") : bi_scope.
 
 (** Same for [gen_inv_heap], except that these are higher-order notations so to
@@ -239,63 +228,41 @@ Qed.
 (** Heap *)
 
 (** We need to adjust the [gen_heap] and [gen_inv_heap] lemmas because of our
-value type being [option val] (and sealing). *)
-
-Global Instance pointsto_timeless l dq v : Timeless (l ↦{dq} v).
-Proof. rewrite pointsto_unseal. apply _. Qed.
-Global Instance pointsto_fractional l v : Fractional (λ q, l ↦{#q} v)%I.
-Proof. rewrite pointsto_unseal. apply _. Qed.
-Global Instance pointsto_as_fractional l q v :
-  AsFractional (l ↦{#q} v) (λ q, l ↦{#q} v)%I q.
-Proof. rewrite pointsto_unseal. apply _. Qed.
-Global Instance pointsto_persistent l v : Persistent (l ↦□ v).
-Proof. rewrite pointsto_unseal. apply _. Qed.
-
-Global Instance pointsto_combine_sep_gives l dq1 dq2 v1 v2 : 
-  CombineSepGives (l ↦{dq1} v1) (l ↦{dq2} v2) ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝.
-Proof.
-  rewrite pointsto_unseal /CombineSepGives. iIntros "[H1 H2]".
-  iCombine "H1 H2" gives %[? [=->]]. eauto.
-Qed.
-
-Lemma pointsto_combine l dq1 dq2 v1 v2 :
-  l ↦{dq1} v1 -∗ l ↦{dq2} v2 -∗ l ↦{dq1 ⋅ dq2} v1 ∗ ⌜v1 = v2⌝.
-Proof.
-  rewrite pointsto_unseal.
-  iIntros "Hl1 Hl2". by iCombine "Hl1 Hl2" as "$" gives %[_ [= ->]].
-Qed.
-
-Global Instance pointsto_combine_as l dq1 dq2 v1 v2 :
-  CombineSepAs (l ↦{dq1} v1) (l ↦{dq2} v2) (l ↦{dq1 ⋅ dq2} v1) | 60.
-  (* higher cost than the Fractional instance, which kicks in for #qs *)
-Proof.
-  rewrite /CombineSepAs. iIntros "[H1 H2]".
-  iDestruct (pointsto_combine with "H1 H2") as "[$ _]".
-Qed.
+value type being [option val]. *)
 
 Lemma pointsto_valid l dq v : l ↦{dq} v -∗ ⌜✓ dq⌝.
-Proof. rewrite pointsto_unseal. apply pointsto_valid. Qed.
+Proof. apply pointsto_valid. Qed.
 Lemma pointsto_valid_2 l dq1 dq2 v1 v2 :
   l ↦{dq1} v1 -∗ l ↦{dq2} v2 -∗ ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝.
 Proof. iIntros "H1 H2". iCombine "H1 H2" gives %[? [= ?]]. done. Qed.
 Lemma pointsto_agree l dq1 dq2 v1 v2 : l ↦{dq1} v1 -∗ l ↦{dq2} v2 -∗ ⌜v1 = v2⌝.
 Proof. iIntros "H1 H2". iCombine "H1 H2" gives %[_ [= ?]]. done. Qed.
 
+Global Instance pointsto_combine_sep_gives l dq1 dq2 v1 v2 : 
+  CombineSepGives (l ↦{dq1} v1) (l ↦{dq2} v2) ⌜✓ (dq1 ⋅ dq2) ∧ v1 = v2⌝ | 20. 
+  (* We provide an instance with lower cost than the gen_heap instance
+     to avoid having to deal with Some v1 = Some v2 *)
+Proof.
+  rewrite /CombineSepGives. iIntros "[H1 H2]".
+  iCombine "H1 H2" gives %[? [=->]]. eauto.
+Qed.
+
+Lemma pointsto_combine l dq1 dq2 v1 v2 :
+  l ↦{dq1} v1 -∗ l ↦{dq2} v2 -∗ l ↦{dq1 ⋅ dq2} v1 ∗ ⌜v1 = v2⌝.
+Proof.
+  iIntros "Hl1 Hl2". by iCombine "Hl1 Hl2" as "$" gives %[_ ->].
+Qed.
+
 Lemma pointsto_frac_ne l1 l2 dq1 dq2 v1 v2 :
   ¬ ✓(dq1 ⋅ dq2) → l1 ↦{dq1} v1 -∗ l2 ↦{dq2} v2 -∗ ⌜l1 ≠ l2⌝.
-Proof. rewrite pointsto_unseal. apply pointsto_frac_ne. Qed.
+Proof. apply pointsto_frac_ne. Qed.
 Lemma pointsto_ne l1 l2 dq2 v1 v2 : l1 ↦ v1 -∗ l2 ↦{dq2} v2 -∗ ⌜l1 ≠ l2⌝.
-Proof. rewrite pointsto_unseal. apply pointsto_ne. Qed.
+Proof. apply pointsto_ne. Qed.
 
 Lemma pointsto_persist l dq v : l ↦{dq} v ==∗ l ↦□ v.
-Proof. rewrite pointsto_unseal. apply pointsto_persist. Qed.
+Proof. apply pointsto_persist. Qed.
 Lemma pointsto_unpersist l v : l ↦□ v ==∗ ∃ q, l ↦{#q} v.
-Proof. rewrite pointsto_unseal. apply pointsto_unpersist. Qed.
-
-Global Instance frame_pointsto p l v q1 q2 q :
-  FrameFractionalQp q1 q2 q →
-  Frame p (l ↦{#q1} v) (l ↦{#q2} v) (l ↦{#q} v) | 5.
-Proof. apply: frame_fractional. Qed.
+Proof. apply pointsto_unpersist. Qed.
 
 Global Instance inv_pointsto_own_proper l v :
   Proper (pointwise_relation _ iff ==> (≡)) (inv_pointsto_own l v).
@@ -314,10 +281,7 @@ Lemma make_inv_pointsto l v (I : val → Prop) E :
   ↑inv_heapN ⊆ E →
   I v →
   inv_heap_inv -∗ l ↦ v ={E}=∗ l ↦_I v.
-Proof.
-  iIntros (??) "#HI Hl". rewrite pointsto_unseal.
-  iApply make_inv_pointsto; done.
-Qed.
+Proof. iIntros (??) "#HI Hl". iApply make_inv_pointsto; done. Qed.
 Lemma inv_pointsto_own_inv l v I : l ↦_I v -∗ l ↦_I □.
 Proof. apply inv_pointsto_own_inv. Qed.
 
@@ -327,7 +291,7 @@ Lemma inv_pointsto_own_acc_strong E :
     (⌜I v⌝ ∗ l ↦ v ∗ (∀ w, ⌜I w ⌝ -∗ l ↦ w ==∗
       inv_pointsto_own l w I ∗ |={E ∖ ↑inv_heapN, E}=> True)).
 Proof.
-  iIntros (?) "#Hinv". rewrite pointsto_unseal.
+  iIntros (?) "#Hinv".
   iMod (inv_pointsto_own_acc_strong with "Hinv") as "Hacc"; first done.
   iIntros "!>" (l v I) "Hl". iDestruct ("Hacc" with "Hl") as "(% & Hl & Hclose)".
   iFrame "%∗". iIntros (w) "% Hl". iApply "Hclose"; done.
@@ -338,7 +302,7 @@ Lemma inv_pointsto_own_acc E l v I:
   inv_heap_inv -∗ l ↦_I v ={E, E ∖ ↑inv_heapN}=∗
     (⌜I v⌝ ∗ l ↦ v ∗ (∀ w, ⌜I w ⌝ -∗ l ↦ w ={E ∖ ↑inv_heapN, E}=∗ l ↦_I w)).
 Proof.
-  iIntros (?) "#Hinv Hl". rewrite pointsto_unseal.
+  iIntros (?) "#Hinv Hl".
   iMod (inv_pointsto_own_acc with "Hinv Hl") as "(% & Hl & Hclose)"; first done.
   iFrame "%∗". iIntros "!>" (w) "% Hl". iApply "Hclose"; done.
 Qed.
@@ -348,7 +312,7 @@ Lemma inv_pointsto_acc l I E :
   inv_heap_inv -∗ l ↦_I □ ={E, E ∖ ↑inv_heapN}=∗
     ∃ v, ⌜I v⌝ ∗ l ↦ v ∗ (l ↦ v ={E ∖ ↑inv_heapN, E}=∗ True).
 Proof.
-  iIntros (?) "#Hinv Hl". rewrite pointsto_unseal.
+  iIntros (?) "#Hinv Hl".
   iMod (inv_pointsto_acc with "Hinv Hl") as ([v|]) "(% & Hl & Hclose)"; [done| |done].
   iIntros "!>". iExists (v). iFrame "%∗".
 Qed.
@@ -360,7 +324,7 @@ Lemma heap_array_to_seq_meta l vs (n : nat) :
   ([∗ map] l' ↦ _ ∈ heap_array l vs, meta_token l' ⊤) -∗
   [∗ list] i ∈ seq 0 n, meta_token (l +ₗ (i : nat)) ⊤.
 Proof.
-  iIntros (<-) "Hvs". iInduction vs as [|v vs IH] forall (l)=> //=.
+  iIntros (<-) "Hvs". iInduction vs as [|v vs] "IH" forall (l)=> //=.
   rewrite big_opM_union; last first.
   { apply map_disjoint_spec=> l' v1 v2 /lookup_singleton_Some [-> _].
     intros (j&w&?&Hjl&?&?)%heap_array_lookup.
@@ -375,7 +339,7 @@ Lemma heap_array_to_seq_pointsto l v (n : nat) :
   ([∗ map] l' ↦ ov ∈ heap_array l (replicate n v), gen_heap.pointsto l' (DfracOwn 1) ov) -∗
   [∗ list] i ∈ seq 0 n, (l +ₗ (i : nat)) ↦ v.
 Proof.
-  iIntros "Hvs". iInduction n as [|n IH] forall (l); simpl.
+  iIntros "Hvs". iInduction n as [|n] "IH" forall (l); simpl.
   { done. }
   rewrite big_opM_union; last first.
   { apply map_disjoint_spec=> l' v1 v2 /lookup_singleton_Some [-> _].
@@ -384,8 +348,7 @@ Proof.
   rewrite Loc.add_0 -fmap_S_seq big_sepL_fmap.
   setoid_rewrite Nat2Z.inj_succ. setoid_rewrite <-Z.add_1_l.
   setoid_rewrite <-Loc.add_assoc.
-  rewrite big_opM_singleton pointsto_unseal.
-  iDestruct "Hvs" as "[$ Hvs]". by iApply "IH".
+  rewrite big_opM_singleton; iDestruct "Hvs" as "[$ Hvs]". by iApply "IH".
 Qed.
 
 Lemma twp_allocN_seq s E v n :
@@ -401,12 +364,12 @@ Proof.
   iMod (gen_heap_alloc_big _ (heap_array _ (replicate (Z.to_nat n) v)) with "Hσ")
     as "(Hσ & Hl & Hm)".
   { apply heap_array_map_disjoint.
-    rewrite length_replicate Z2Nat.id; auto with lia. }
+    rewrite replicate_length Z2Nat.id; auto with lia. }
   iMod (steps_auth_update_S with "Hsteps") as "Hsteps".
   iModIntro; do 2 (iSplit; first done). iFrame "Hσ Hκs Hsteps". iApply "HΦ".
   iApply big_sepL_sep. iSplitL "Hl".
   - by iApply heap_array_to_seq_pointsto.
-  - iApply (heap_array_to_seq_meta with "Hm"). by rewrite length_replicate.
+  - iApply (heap_array_to_seq_meta with "Hm"). by rewrite replicate_length.
 Qed.
 Lemma wp_allocN_seq s E v n :
   (0 < n)%Z →
@@ -460,7 +423,7 @@ Lemma twp_free s E l v :
 Proof.
   iIntros (Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ v2 σ2 efs Hstep); inv_base_step.
   iMod (gen_heap_update with "Hσ Hl") as "[$ Hl]".
@@ -487,7 +450,7 @@ Lemma twp_load s E l dq v :
 Proof.
   iIntros (Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ v2 σ2 efs Hstep); inv_base_step.
   iMod (steps_auth_update_S with "Hsteps") as "Hsteps".
@@ -515,7 +478,7 @@ Lemma twp_store s E l v' v :
 Proof.
   iIntros (Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ v2 σ2 efs Hstep); inv_base_step.
   iMod (steps_auth_update_S with "Hsteps") as "Hsteps".
@@ -544,7 +507,7 @@ Lemma twp_xchg s E l v' v :
 Proof.
   iIntros (Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ v2 σ2 efs Hstep); inv_base_step.
   iMod (steps_auth_update_S with "Hsteps") as "Hsteps".
@@ -574,7 +537,7 @@ Lemma twp_cmpxchg_fail s E l dq v' v1 v2 :
 Proof.
   iIntros (?? Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ v2' σ2 efs Hstep); inv_base_step.
   rewrite bool_decide_false //.
@@ -607,7 +570,7 @@ Lemma twp_cmpxchg_suc s E l v1 v2 v' :
 Proof.
   iIntros (?? Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ v2' σ2 efs Hstep); inv_base_step.
   rewrite bool_decide_true //.
@@ -641,7 +604,7 @@ Lemma twp_faa s E l i1 i2 :
 Proof.
   iIntros (Φ) "Hl HΦ". iApply twp_lift_atomic_base_step_no_fork; first done.
   iIntros (σ1 ns κs nt) "(Hσ & Hκs & Hsteps) !>".
-  rewrite pointsto_unseal. iDestruct (gen_heap_valid with "Hσ Hl") as %?.
+  iDestruct (gen_heap_valid with "Hσ Hl") as %?.
   iSplit; first by eauto with base_step.
   iIntros (κ e2 σ2 efs Hstep); inv_base_step.
   iMod (gen_heap_update with "Hσ Hl") as "[$ Hl]".

@@ -25,7 +25,8 @@ From iris.prelude Require Import options.
 Local Open Scope Z_scope.
 
 Class mono_ZG Σ :=
-  MonoZG { #[local] mono_ZG_natG :: mono_natG Σ; }.
+  MonoZG { mono_ZG_natG : mono_natG Σ; }.
+Local Existing Instance mono_ZG_natG.
 Definition mono_ZΣ := mono_natΣ.
 
 Local Definition mono_Z_auth_own_def `{!mono_ZG Σ}

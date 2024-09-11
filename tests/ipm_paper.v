@@ -104,7 +104,7 @@ End list_reverse.
 
 (** The proofs from Section 5 *)
 (** This part contains a formalization of the monotone counter, but with an
-explicit construction of the monoid, as we have also done in the proof mode
+explicit contruction of the monoid, as we have also done in the proof mode
 paper. This should simplify explaining and understanding what is happening.
 A version that uses the authoritative monoid and natural number monoid
 under max can be found in [theories/heap_lang/lib/counter.v]. *)
@@ -174,7 +174,8 @@ Section M.
   Qed.
 End M.
 
-Class counterG Σ := CounterG { #[local] counter_tokG :: inG Σ M_UR }.
+Class counterG Σ := CounterG { counter_tokG : inG Σ M_UR }.
+Local Existing Instance counter_tokG.
 
 Definition counterΣ : gFunctors := #[GFunctor (constRF M_UR)].
 Global Instance subG_counterΣ {Σ} : subG counterΣ Σ → counterG Σ.

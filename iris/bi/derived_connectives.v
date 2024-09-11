@@ -21,8 +21,6 @@ Global Arguments Persistent {_} _%I : simpl never.
 Global Arguments persistent {_} _%I {_}.
 Global Hint Mode Persistent - ! : typeclass_instances.
 Global Instance: Params (@Persistent) 1 := {}.
-Global Hint Extern 100 (Persistent (match ?x with _ => _ end)) =>
-  destruct x : typeclass_instances.
 
 Definition bi_affinely {PROP : bi} (P : PROP) : PROP := emp ∧ P.
 Global Arguments bi_affinely {_} _%I : simpl never.
@@ -34,8 +32,6 @@ Class Affine {PROP : bi} (Q : PROP) := affine : Q ⊢ emp.
 Global Arguments Affine {_} _%I : simpl never.
 Global Arguments affine {_} _%I {_}.
 Global Hint Mode Affine - ! : typeclass_instances.
-Global Hint Extern 100 (Affine (match ?x with _ => _ end)) =>
-  destruct x : typeclass_instances.
 
 Definition bi_absorbingly {PROP : bi} (P : PROP) : PROP := True ∗ P.
 Global Arguments bi_absorbingly {_} _%I : simpl never.
@@ -47,8 +43,6 @@ Class Absorbing {PROP : bi} (P : PROP) := absorbing : <absorb> P ⊢ P.
 Global Arguments Absorbing {_} _%I : simpl never.
 Global Arguments absorbing {_} _%I.
 Global Hint Mode Absorbing - ! : typeclass_instances.
-Global Hint Extern 100 (Absorbing (match ?x with _ => _ end)) =>
-  destruct x : typeclass_instances.
 
 Definition bi_persistently_if {PROP : bi} (p : bool) (P : PROP) : PROP :=
   (if p then <pers> P else P)%I.
@@ -121,8 +115,6 @@ Global Arguments Timeless {_} _%I : simpl never.
 Global Arguments timeless {_} _%I {_}.
 Global Hint Mode Timeless - ! : typeclass_instances.
 Global Instance: Params (@Timeless) 1 := {}.
-Global Hint Extern 100 (Timeless (match ?x with _ => _ end)) =>
-  destruct x : typeclass_instances.
 
 (** An optional precondition [mP] to [Q].
     TODO: We may actually consider generalizing this to a list of preconditions,
