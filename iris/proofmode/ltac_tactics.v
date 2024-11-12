@@ -2,7 +2,7 @@ From stdpp Require Import namespaces hlist pretty.
 From iris.bi Require Export bi telescopes.
 From iris.proofmode Require Import base intro_patterns spec_patterns
                                    sel_patterns coq_tactics reduction
-                                   string_ident.
+                                   string_ident strings.
 From iris.proofmode Require Export classes notation.
 From iris.prelude Require Import options.
 Export ident.
@@ -22,6 +22,17 @@ Ltac pretty_ident H :=
   | ?H => H
   end.
 
+(** [to_str t] tries to turn [t] into a name using [to_str] and returns the term
+    unchanged in case of failure. *)
+Ltac maybe_named t :=
+  match t with
+  | _ =>
+    let t := open_constr:(to_str_str t) in
+    let t := eval vm_compute in t in
+    constr:(INamed t)
+  | _ => t
+  end.
+
 (** * Misc *)
 
 Ltac iGetCtx :=
@@ -39,6 +50,7 @@ Ltac iMissingHyps Hs :=
   iMissingHypsCore Δ Hs.
 
 Ltac iTypeOf H :=
+  let H := maybe_named H in
   let Δ := match goal with |- envs_entails ?Δ _ => Δ end in
   pm_eval (envs_lookup H Δ).
 
@@ -130,6 +142,8 @@ Ltac iFresh :=
 
 (** * Context manipulation *)
 Tactic Notation "iRename" constr(H1) "into" constr(H2) :=
+  let H1 := maybe_named H1 in
+  let H2 := maybe_named H2 in
   eapply tac_rename with H1 H2 _ _; (* (i:=H1) (j:=H2) *)
     [pm_reflexivity ||
      let H1 := pretty_ident H1 in
@@ -248,6 +262,7 @@ Ltac, but it may be possible in Ltac2. *)
 
 (** * Assumptions *)
 Tactic Notation "iExact" constr(H) :=
+  let H := maybe_named H in
   eapply tac_assumption with H _ _; (* (i:=H) *)
     [pm_reflexivity ||
      let H := pretty_ident H in
@@ -1010,11 +1025,7 @@ Tactic Notation "iSpecializeCore" open_constr(H)
     "with" open_constr(xs) open_constr(pat) "as" constr(p) :=
   let p := intro_pat_intuitionistic p in
   let pat := spec_pat.parse pat in
-  let H :=
-    lazymatch type of H with
-    | string => constr:(INamed H)
-    | _ => H
-    end in
+  let H := maybe_named H in
   iSpecializeArgs H xs; [..|
     lazymatch type of H with
     | ident =>
@@ -1065,13 +1076,17 @@ Tactic Notation "iSpecializeCore" open_constr(H)
 
 Tactic Notation "iSpecializeCore" open_constr(t) "as" constr(p) :=
   lazymatch type of t with
-  | string => iSpecializeCore t with hnil "" as p
   | ident => iSpecializeCore t with hnil "" as p
   | _ =>
-    lazymatch t with
-    | ITrm ?H ?xs ?pat => iSpecializeCore H with xs pat as p
-    | _ => fail "iSpecialize:" t "should be a proof mode term"
-    end
+    tryif is_str t then
+      let t := open_constr:(to_str_str t) in
+      let t := eval vm_compute in t in
+      iSpecializeCore t with hnil "" as p
+    else
+      lazymatch t with
+      | ITrm ?H ?xs ?pat => iSpecializeCore H with xs pat as p
+      | _ => fail "iSpecialize:" t "should be a proof mode term"
+      end
   end.
 
 Tactic Notation "iSpecialize" open_constr(t) :=
@@ -1090,7 +1105,7 @@ Tactic Notation "iPoseProofCore" open_constr(lem)
     "as" constr(p) tactic3(tac) :=
   iStartProof;
   let t := lazymatch lem with ITrm ?t ?xs ?pat => t | _ => lem end in
-  let t := lazymatch type of t with string => constr:(INamed t) | _ => t end in
+  let t := maybe_named t in
   let spec_tac Htmp :=
     lazymatch lem with
     | ITrm _ ?xs ?pat => iSpecializeCore (ITrm Htmp xs pat) as p
@@ -1196,7 +1211,7 @@ Tactic Notation "iSplit" :=
 
 Tactic Notation "iSplitL" constr(Hs) :=
   iStartProof;
-  let Hs := String.words Hs in
+  let Hs := to_str_words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   let Δ := iGetCtx in
   eapply tac_sep_split with Left Hs _ _; (* (js:=Hs) *)
@@ -1212,7 +1227,7 @@ Tactic Notation "iSplitL" constr(Hs) :=
 
 Tactic Notation "iSplitR" constr(Hs) :=
   iStartProof;
-  let Hs := String.words Hs in
+  let Hs := to_str_words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   let Δ := iGetCtx in
   eapply tac_sep_split with Right Hs _ _; (* (js:=Hs) *)
@@ -1481,7 +1496,7 @@ Tactic Notation "iDestructHyp" constr(H) "as"
 
 (** * Combinining hypotheses *)
 Tactic Notation "iCombine" constr(Hs) "as" constr(pat) :=
-  let Hs := String.words Hs in
+  let Hs := to_str_words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   let H := iFresh in
   let Δ := iGetCtx in
@@ -1502,7 +1517,7 @@ Tactic Notation "iCombine" constr(H1) constr(H2) "as" constr(pat) :=
   iCombine [H1;H2] as pat.
 
 Tactic Notation "iCombineGivesCore" constr(Hs) "gives" tactic3(tac) :=
-  let Hs := String.words Hs in
+  let Hs := to_str_words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   let H := iFresh in
   let Δ := iGetCtx in
@@ -1534,7 +1549,7 @@ Tactic Notation "iCombine" constr(H1) constr(H2)
 
 Tactic Notation "iCombineAsGivesCore" constr(Hs) "as" constr(pat1)
                                       "gives" tactic3(tac) :=
-  let Hs := String.words Hs in
+  let Hs := to_str_words Hs in
   let Hs := eval vm_compute in (INamed <$> Hs) in
   let H1 := iFresh in
   let H2 := iFresh in
@@ -1690,8 +1705,13 @@ Tactic Notation "iDestructCore" open_constr(lem) "as" constr(p) tactic3(tac) :=
      that is not supported by Ltac. *)
      let n := eval cbv in (Z.to_nat lem) in intro_destruct n
   | ident => tac lem
-  | string => tac constr:(INamed lem)
-  | _ => iPoseProofCore lem as p tac
+  | _ =>
+    tryif is_str lem then
+      let lem := open_constr:(to_str_str lem) in
+      let lem := eval vm_compute in lem in
+      tac constr:(INamed lem)
+    else
+      iPoseProofCore lem as p tac
   end.
 
 Ltac _iDestruct0 lem pat :=
@@ -1761,6 +1781,7 @@ Tactic Notation "iInductionCore" tactic3(tac) "as" constr(IH) :=
            rev_tac j in
          match IH with
          | Some ?IH =>
+            let IH := is_str_constr IH in
             let IH' := eval vm_compute in
               match j with 0%N => IH | _ => IH +:+ pretty j end in
             cont IH'
@@ -1862,6 +1883,7 @@ Tactic Notation "iLöbCore" "as" constr (IH) :=
   (* apply is sometimes confused wrt. canonical structures search.
      refine should use the other unification algorithm, which should
      not have this issue. *)
+  let IH := maybe_named IH in
   notypeclasses refine (tac_löb _ IH _ _ _ _);
     [tc_solve || fail "iLöb: no 'BiLöb' instance found"
     |reflexivity || fail "iLöb: spatial context not empty; this should not happen, please report a bug"
@@ -1960,6 +1982,7 @@ Tactic Notation "iRewrite" "-" open_constr(lem) := iRewriteCore Left lem.
 
 Local Tactic Notation "iRewriteCore" constr(lr) open_constr(lem) "in" constr(H) :=
   iPoseProofCore lem as true (fun Heq =>
+    let H := maybe_named H in
     eapply (tac_rewrite_in _ Heq _ _ H _ _ lr);
       [pm_reflexivity ||
        let Heq := pretty_ident Heq in
@@ -2027,16 +2050,20 @@ Tactic Notation "iInvCore" constr(select) "with" constr(pats) "as" open_constr(H
     | None => open_constr:(None)
     end in
   lazymatch type of select with
-  | string =>
-     notypeclasses refine (tac_inv_elim _ select H _ _ _ _ _ Pclose_pat _ _ _ _ _ _);
-     [ (by iAssumptionCore) || fail "iInv: invariant" select "not found" |..]
   | ident  =>
      notypeclasses refine (tac_inv_elim _ select H _ _ _ _ _ Pclose_pat _ _ _ _ _ _);
      [ (by iAssumptionCore) || fail "iInv: invariant" select "not found" |..]
   | namespace =>
      notypeclasses refine (tac_inv_elim _ _ H _ _ _ _ _ Pclose_pat _ _ _ _ _ _);
      [ (by iAssumptionInv select) || fail "iInv: invariant" select "not found" |..]
-  | _ => fail "iInv: selector" select "is not of the right type "
+  | _ =>
+    tryif is_str select then
+      let select := open_constr:(to_str_str select) in
+      let select := eval vm_compute in select in
+      notypeclasses refine (tac_inv_elim _ select H _ _ _ _ _ Pclose_pat _ _ _ _ _ _);
+      [ (by iAssumptionCore) || fail "iInv: invariant" select "not found" |..]
+    else
+      fail "iInv: selector" select "is not of the right type "
   end;
     [tc_solve ||
      let I := match goal with |- ElimInv _ ?I  _ _ _ _ _ => I end in

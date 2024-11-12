@@ -1,5 +1,4 @@
-From stdpp Require Export strings.
-From iris.proofmode Require Import base tokens sel_patterns.
+From iris.proofmode Require Import base tokens sel_patterns strings.
 From iris.prelude Require Import options.
 
 Inductive gallina_ident :=
@@ -127,41 +126,44 @@ Fixpoint close (k : stack) (ps : list intro_pat) : option (list intro_pat) :=
   | _ => None
   end.
 
-Definition parse (s : string) : option (list intro_pat) :=
-  k ← parse_go (tokenize s) []; close k [].
+Definition parse {TS : to_str} (s : TS) : option (list intro_pat) :=
+  k ← parse_go (tokenize (to_str_str s)) []; close k [].
 
 Ltac parse s :=
   lazymatch type of s with
   | list intro_pat => s
   | intro_pat => constr:([s])
-  | list string =>
-     lazymatch eval vm_compute in (mjoin <$> mapM parse s) with
-     | Some ?pats => pats
-     | _ => fail "intro_pat.parse: cannot parse" s "as an introduction pattern"
-     end
-  | string =>
-     lazymatch eval vm_compute in (parse s) with
-     | Some ?pats => pats
-     | _ => fail "intro_pat.parse: cannot parse" s "as an introduction pattern"
-     end
   | ident => constr:([IIdent s])
-  | ?X => fail "intro_pat.parse: the term" s
-     "is expected to be an introduction pattern"
-     "(usually a string),"
-     "but has unexpected type" X
+  | ?X =>
+    lazymatch is_str_constr s with
+    | to_str_str _ =>
+      lazymatch eval vm_compute in (parse s) with
+      | Some ?pats => pats
+      | _ => fail "intro_pat.parse: cannot parse" s "as an introduction pattern"
+      end
+    | _ =>
+      fail "intro_pat.parse: the term" s
+      "is expected to be an introduction pattern"
+      "(usually a string),"
+      "but has unexpected type" X
+    end
   end.
 Ltac parse_one s :=
   lazymatch type of s with
   | intro_pat => s
-  | string =>
-     lazymatch eval vm_compute in (parse s) with
-     | Some [?pat] => pat
-     | _ => fail "intro_pat.parse_one: cannot parse" s "as an introduction pattern"
-     end
-  | ?X => fail "intro_pat.parse_one: the term" s
-     "is expected to be an introduction pattern"
-     "(usually a string),"
-     "but has unexpected type" X
+  | ?X =>
+    lazymatch is_str_constr s with
+    | to_str_str _ =>
+      lazymatch eval vm_compute in (parse s) with
+      | Some [?pat] => pat
+      | _ => fail "intro_pat.parse_one: cannot parse" s "as an introduction pattern"
+      end
+    | _ =>
+      fail "intro_pat.parse_one: the term" s
+      "is expected to be an introduction pattern"
+      "(usually a string),"
+      "but has unexpected type" X
+    end
   end.
 End intro_pat.
 
@@ -181,13 +183,18 @@ Ltac intro_pat_intuitionistic p :=
   lazymatch type of p with
   | intro_pat => eval cbv in (intro_pat_intuitionistic p)
   | list intro_pat => eval cbv in (forallb intro_pat_intuitionistic p)
-  | string =>
-     let pat := intro_pat.parse p in
-     eval cbv in (forallb intro_pat_intuitionistic pat)
   | ident => false
   | bool => p
-  | ?X => fail "intro_pat_intuitionistic: the term" p
+  | ?X =>
+    lazymatch is_str_constr p with
+    | to_str_str _ =>
+      let pat := intro_pat.parse p in
+      let t := eval cbv in (forallb intro_pat_intuitionistic pat) in
+      t
+    | _ =>
+     fail "intro_pat_intuitionistic: the term" p
      "is expected to be an introduction pattern"
      "(usually a string),"
      "but has unexpected type" X
+    end
   end.

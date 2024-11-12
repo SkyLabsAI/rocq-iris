@@ -2,6 +2,7 @@
 Unless you are working with the guts of the proofmode, do not import any other
 file from this folder! *)
 From iris.proofmode Require Export ltac_tactics.
+From iris.proofmode Require Export strings.
 (* This [Require Import] is not a no-op: it exports typeclass instances from
 these files. *)
 From iris.proofmode Require Import class_instances class_instances_later

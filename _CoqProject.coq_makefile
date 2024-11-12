@@ -137,6 +137,7 @@ iris/proofmode/coq_tactics.v
 iris/proofmode/ltac_tactics.v
 iris/proofmode/environments.v
 iris/proofmode/reduction.v
+iris/proofmode/strings.v
 iris/proofmode/intro_patterns.v
 iris/proofmode/spec_patterns.v
 iris/proofmode/sel_patterns.v

@@ -1,6 +1,6 @@
 From stdpp Require Import nat_cancel.
 From iris.bi Require Import bi.
-From iris.proofmode Require Import modality_instances classes.
+From iris.proofmode Require Import modality_instances classes strings.
 From iris.proofmode Require Import ltac_tactics class_instances.
 From iris.prelude Require Import options.
 Import bi.
