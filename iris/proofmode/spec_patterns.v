@@ -1,5 +1,4 @@
-From stdpp Require Export strings.
-From iris.proofmode Require Import base tokens.
+From iris.proofmode Require Import base tokens strings.
 From iris.prelude Require Import options.
 
 Inductive goal_kind := GSpatial | GModal | GIntuitionistic.
@@ -83,22 +82,26 @@ with parse_goal (ts : list token)
      parse_go ts (StPat (SGoal (SpecGoal ki neg (reverse frame) (reverse hyps) false)) :: k)
   | _ => None
   end.
-Definition parse (s : string) : option (list spec_pat) :=
-  parse_go (tokenize s) [].
+Definition parse {TS : to_str} (s : TS) : option (list spec_pat) :=
+  parse_go (tokenize (to_str_str s)) [].
 
 Ltac parse s :=
   lazymatch type of s with
   | list spec_pat => s
   | spec_pat => constr:([s])
-  | string =>
-     lazymatch eval vm_compute in (parse s) with
-     | Some ?pats => pats
-     | _ => fail "spec_pat.parse: cannot parse" s "as a specialization pattern"
-     end
   | ident => constr:([SIdent s []])
-  | ?X => fail "spec_pat.parse: the term" s
-     "is expected to be a specialization pattern"
-     "(usually a string),"
-     "but has unexpected type" X
+  | ?X =>
+    lazymatch is_str_constr s with
+    | to_str_str _ =>
+      lazymatch eval vm_compute in (parse s) with
+       | Some ?pats => pats
+       | _ => fail "spec_pat.parse: cannot parse" s "as a specialization pattern"
+      end
+    | _ =>
+      fail "spec_pat.parse: the term" s
+      "is expected to be a specialization pattern"
+      "(usually a string),"
+      "but has unexpected type" X
+    end
   end.
 End spec_pat.

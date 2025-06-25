@@ -1,5 +1,5 @@
 From iris.bi Require Import telescopes.
-From iris.proofmode Require Import base modality_instances classes classes_make.
+From iris.proofmode Require Import base modality_instances classes classes_make strings.
 From iris.proofmode Require Import ltac_tactics.
 From iris.prelude Require Import options.
 Import bi.
