@@ -27,8 +27,9 @@ tags: [
 ]
 
 depends: [
-  "coq" { (>= "8.19" & < "9.1~") | (= "dev") }
   "coq-stdpp" { (= "dev.2025-05-18.0.55d19c56") | (= "dev") }
+  # Add extra constraints to coq-core
+  "coq-core" { (>= "8.19" & < "9.1~") | (= "dev") }
 ]
 
 build: ["./make-package" "iris" "-j%{jobs}%"]
