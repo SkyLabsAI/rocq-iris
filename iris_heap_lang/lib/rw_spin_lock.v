@@ -372,6 +372,7 @@ End proof.
 
 Definition rw_spin_lock : rwlock :=
   {| rw_lock.rwlockG := rw_spin_lockG;
+     rw_lock.is_rw_lock := @is_rw_lock;
      rw_lock.writer_locked_exclusive _ _ _ _ := writer_locked_exclusive;
      rw_lock.writer_locked_not_reader_locked _ _ _ _ := writer_locked_not_reader_locked;
      rw_lock.is_rw_lock_iff _ _ _ _ := is_rw_lock_iff;
