@@ -20,5 +20,16 @@ depends: [
   "coq-iris" {= version}
 ]
 
-build: ["./make-package" "iris_heap_lang" "-j%{jobs}%"]
-install: ["./make-package" "iris_heap_lang" "install"]
+build: [
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+]

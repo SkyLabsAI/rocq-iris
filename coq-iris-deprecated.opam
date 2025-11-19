@@ -17,5 +17,16 @@ depends: [
   "coq-iris" {= version}
 ]
 
-build: ["./make-package" "iris_deprecated" "-j%{jobs}%"]
-install: ["./make-package" "iris_deprecated" "install"]
+build: [
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+]

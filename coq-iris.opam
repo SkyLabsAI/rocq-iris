@@ -31,6 +31,16 @@ depends: [
   # Add extra constraints to coq-core
   "coq-core" { (>= "8.19" & < "9.1~") | (= "dev") }
 ]
-
-build: ["./make-package" "iris" "-j%{jobs}%"]
-install: ["./make-package" "iris" "install"]
+build: [
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+]
