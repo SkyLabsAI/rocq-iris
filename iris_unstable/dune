@@ -3,4 +3,4 @@
  (name iris.unstable)
  (package rocq-iris-unstable)
  (generate_project_file)
- (theories Stdlib stdpp iris iris.heap_lang))
+ (theories Stdlib Ltac2 stdpp iris iris.heap_lang))
