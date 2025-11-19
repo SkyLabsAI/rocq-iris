@@ -18,5 +18,16 @@ depends: [
   "rocq-iris-heap-lang" {= version}
 ]
 
-build: ["./make-package" "iris_unstable" "-j%{jobs}%"]
-install: ["./make-package" "iris_unstable" "install"]
+build: [
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+]
