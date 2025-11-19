@@ -3,4 +3,4 @@
  (name iris.heap_lang)
  (package rocq-iris-heap-lang)
  (generate_project_file)
- (theories Stdlib stdpp iris))
+ (theories Stdlib Ltac2 stdpp iris))
