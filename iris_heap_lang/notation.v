@@ -92,43 +92,43 @@ Notation "e1 <- e2" := (Store e1%E e2%E) (at level 80) : expr_scope.
 (* The breaking point '/  ' makes sure that the body of the rec is indented
 by two spaces in case the whole rec does not fit on a single line. *)
 Notation "'rec:' f x := e" := (Rec f%binder x%binder e%E)
-  (at level 200, f at level 1, x at level 1, e at level 200,
+  (at level 10, f at level 1, x at level 1, e at level 200,
    format "'[' 'rec:'  f  x  :=  '/  ' e ']'") : expr_scope.
 Notation "'rec:' f x := e" := (RecV f%binder x%binder e%E)
-  (at level 200, f at level 1, x at level 1, e at level 200,
+  (at level 10, f at level 1, x at level 1, e at level 200,
    format "'[' 'rec:'  f  x  :=  '/  ' e ']'") : val_scope.
 Notation "'if:' e1 'then' e2 'else' e3" := (If e1%E e2%E e3%E)
-  (at level 200, e1, e2, e3 at level 200) : expr_scope.
+  (at level 10, e1, e2, e3 at level 200) : expr_scope.
 
 (** Derived notions, in order of declaration. The notations for let and seq
 are stated explicitly instead of relying on the Notations Let and Seq as
 defined above. This is needed because App is now a coercion, and these
 notations are otherwise not pretty printed back accordingly. *)
 Notation "'rec:' f x y .. z := e" := (Rec f%binder x%binder (Lam y%binder .. (Lam z%binder e%E) ..))
-  (at level 200, f, x, y, z at level 1, e at level 200,
+  (at level 10, f, x, y, z at level 1, e at level 200,
    format "'[' 'rec:'  f  x  y  ..  z  :=  '/  ' e ']'") : expr_scope.
 Notation "'rec:' f x y .. z := e" := (RecV f%binder x%binder (Lam y%binder .. (Lam z%binder e%E) ..))
-  (at level 200, f, x, y, z at level 1, e at level 200,
+  (at level 10, f, x, y, z at level 1, e at level 200,
    format "'[' 'rec:'  f  x  y  ..  z  :=  '/  ' e ']'") : val_scope.
 
 (* The breaking point '/  ' makes sure that the body of the λ: is indented
 by two spaces in case the whole λ: does not fit on a single line. *)
 Notation "λ: x , e" := (Lam x%binder e%E)
-  (at level 200, x at level 1, e at level 200,
+  (at level 10, x at level 1, e at level 200,
    format "'[' 'λ:'  x ,  '/  ' e ']'") : expr_scope.
 Notation "λ: x y .. z , e" := (Lam x%binder (Lam y%binder .. (Lam z%binder e%E) ..))
-  (at level 200, x, y, z at level 1, e at level 200,
+  (at level 10, x, y, z at level 1, e at level 200,
    format "'[' 'λ:'  x  y  ..  z ,  '/  ' e ']'") : expr_scope.
 
 Notation "λ: x , e" := (LamV x%binder e%E)
-  (at level 200, x at level 1, e at level 200,
+  (at level 10, x at level 1, e at level 200,
    format "'[' 'λ:'  x ,  '/  ' e ']'") : val_scope.
 Notation "λ: x y .. z , e" := (LamV x%binder (Lam y%binder .. (Lam z%binder e%E) .. ))
-  (at level 200, x, y, z at level 1, e at level 200,
+  (at level 10, x, y, z at level 1, e at level 200,
    format "'[' 'λ:'  x  y  ..  z ,  '/  ' e ']'") : val_scope.
 
 Notation "'let:' x := e1 'in' e2" := (Lam x%binder e2%E e1%E)
-  (at level 200, x at level 1, e1, e2 at level 200,
+  (at level 10, x at level 1, e1, e2 at level 200,
    format "'[' 'let:'  x  :=  '[' e1 ']'  'in'  '/' e2 ']'") : expr_scope.
 Notation "e1 ;; e2" := (Lam BAnon e2%E e1%E)
   (at level 100, e2 at level 200,

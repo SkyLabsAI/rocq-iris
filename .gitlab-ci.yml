@@ -57,11 +57,11 @@ build-rocq.dev:
     OPAM_PINS: "rocq-core version dev"
 
 # The newest version runs with timing, outside MRs.
-build-rocq.9.2.0:
+build-rocq.9.3.0:
   <<: *template
   <<: *only_branches
   variables:
-    OPAM_PINS: "rocq-core version 9.2.0   rocq-stdlib version 9.1.0"
+    OPAM_PINS: "rocq-core version 9.3.0   rocq-stdlib version 9.2.0"
     DENY_WARNINGS: "1"
     MANGLE_NAMES: "1"
     OPAM_PKG: "1"
@@ -73,20 +73,25 @@ build-rocq.9.2.0:
   interruptible: false
 
 # The newest version also runs in MRs, without timing.
-build-rocq.9.2.0-mr:
+build-rocq.9.3.0-mr:
   <<: *template
   <<: *only_mr
   variables:
-    OPAM_PINS: "rocq-core version 9.2.0   rocq-stdlib version 9.1.0"
+    OPAM_PINS: "rocq-core version 9.3.0   rocq-stdlib version 9.2.0"
     DENY_WARNINGS: "1"
     MANGLE_NAMES: "1"
 
 # Also ensure Dune works.
-build-rocq.9.2.0-dune:
+build-rocq.9.3.0-dune:
+  <<: *template
+  variables:
+    OPAM_PINS: "rocq-core version 9.3.0   rocq-stdlib version 9.2.0"
+    MAKE_TARGET: "dune"
+
+build-rocq.9.2.0:
   <<: *template
   variables:
     OPAM_PINS: "rocq-core version 9.2.0   rocq-stdlib version 9.1.0"
-    MAKE_TARGET: "dune"
 
 build-rocq.9.1.1:
   <<: *template

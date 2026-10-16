@@ -1,5 +1,9 @@
 From iris.bi Require Import interface derived_connectives updates.
 
+(* We cannot yet fix that warning here as then we got conflicts with the
+built-in notation due to different levels in Rocq 9.2. *)
+Set Warnings "-at-level-200-changed".
+
 Notation "P |- Q" := (P ⊢ Q)
   (at level 99, Q at level 200, right associativity, only parsing) : stdpp_scope.
 Notation "P '|-@{' PROP } Q" := (P ⊢@{PROP} Q)
@@ -40,7 +44,7 @@ Notation "P -* Q" := (P -∗ Q)%I
 (* ∀ x .. y , P *)
 Notation "'forall' x .. y , P" :=
   (bi_forall (fun x => .. (bi_forall (fun y => P%I)) ..))
-  (at level 200, x binder, right associativity, only parsing) : bi_scope.
+  (at level 10, x binder, P at level 200, only parsing) : bi_scope.
 (* ∃ x .. y , P *)
 Notation "'exists' x .. y , P" :=
   (bi_exist (fun x => .. (bi_exist (fun y => P%I)) ..))

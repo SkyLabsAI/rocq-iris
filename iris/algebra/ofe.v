@@ -954,7 +954,7 @@ Global Existing Instance ofe_mor_ne.
 
 Notation "'λne' x .. y , t" :=
   (@OfeMor _ _ _ (λ x, .. (@OfeMor _ _ _ (λ y, t) _) ..) _)
-  (at level 200, x binder, y binder, right associativity).
+  (at level 10, x binder, y binder, t at level 200).
 
 Section ofe_mor.
   Context {SI : sidx} {A B : ofe}.

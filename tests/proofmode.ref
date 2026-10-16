@@ -923,7 +923,7 @@ Tactic failure: iSplitL: (P ↔ P)%I not a separating conjunction.
   ============================
   "HP" : P
   _ : [∗ list] y ∈ l, <affine> ⌜y = y⌝
-  _ : <affine> ⌜x = x⌝ ∗ ([∗ list] y ∈ l, <affine> ⌜y = y⌝)
+  _ : <affine> ⌜x = x⌝ ∗ [∗ list] y ∈ l, <affine> ⌜y = y⌝
   --------------------------------------∗
   P
 "test_big_sepL2_simpl"
@@ -940,7 +940,7 @@ Tactic failure: iSplitL: (P ↔ P)%I not a separating conjunction.
   _ : [∗ list] y1;y2 ∈ [];l2, <affine> ⌜y1 = y2⌝
   _ : [∗ list] y1;y2 ∈ x1 :: l1;(x2 :: l2) ++ l2, <affine> ⌜y1 = y2⌝
   --------------------------------------∗
-  P ∨ ([∗ list] _;_ ∈ x1 :: l1;x2 :: l2, True)
+  P ∨ [∗ list] _;_ ∈ x1 :: l1;x2 :: l2, True
 1 goal
   
   SI : sidx
@@ -951,9 +951,9 @@ Tactic failure: iSplitL: (P ↔ P)%I not a separating conjunction.
   ============================
   "HP" : P
   _ : [∗ list] y1;y2 ∈ [];l2, <affine> ⌜y1 = y2⌝
-  _ : <affine> ⌜x1 = x2⌝ ∗ ([∗ list] y1;y2 ∈ l1;l2 ++ l2, <affine> ⌜y1 = y2⌝)
+  _ : <affine> ⌜x1 = x2⌝ ∗ [∗ list] y1;y2 ∈ l1;l2 ++ l2, <affine> ⌜y1 = y2⌝
   --------------------------------------∗
-  P ∨ True ∗ ([∗ list] _;_ ∈ l1;l2, True)
+  P ∨ True ∗ [∗ list] _;_ ∈ l1;l2, True
 "test_big_sepL2_iDestruct"
      : string
 1 goal
