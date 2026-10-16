@@ -130,68 +130,68 @@ Reserved Notation "P ={ E }▷=∗^ n Q"
 
 (** * Big Ops *)
 Reserved Notation "'[∗' 'list]' k ↦ x ∈ l , P"
-  (at level 200, l at level 200, k binder, x binder, right associativity,
+  (at level 10, l at level 200, k binder, x binder, P at level 200,
    format "[∗  list]  k ↦ x  ∈  l ,  P").
 Reserved Notation "'[∗' 'list]' x ∈ l , P"
-  (at level 200, l at level 200, x binder, right associativity,
+  (at level 10, l at level 200, x binder, P at level 200,
    format "[∗  list]  x  ∈  l ,  P").
 
 Reserved Notation "'[∗' 'list]' k ↦ x1 ; x2 ∈ l1 ; l2 , P"
-  (at level 200, l1, l2 at level 200, k binder, x1 binder, x2 binder,
-   right associativity,
+  (at level 10, l1, l2 at level 200, k binder, x1 binder, x2 binder,
+   P at level 200,
    format "[∗  list]  k ↦ x1 ; x2  ∈  l1 ; l2 ,  P").
 Reserved Notation "'[∗' 'list]' x1 ; x2 ∈ l1 ; l2 , P"
-  (at level 200, l1, l2 at level 200, x1 binder, x2 binder, right associativity,
+  (at level 10, l1, l2 at level 200, x1 binder, x2 binder, P at level 200,
    format "[∗  list]  x1 ; x2  ∈  l1 ; l2 ,  P").
 
 Reserved Notation "'[∗]' Ps" (at level 20).
 
 Reserved Notation "'[∧' 'list]' k ↦ x ∈ l , P"
-  (at level 200, l at level 200, k binder, x binder, right associativity,
+  (at level 10, l at level 200, k binder, x binder, P at level 200,
    format "[∧  list]  k ↦ x  ∈  l ,  P").
 Reserved Notation "'[∧' 'list]' x ∈ l , P"
-  (at level 200, l at level 200, x binder, right associativity,
+  (at level 10, l at level 200, x binder, P at level 200,
    format "[∧  list]  x  ∈  l ,  P").
 
 Reserved Notation "'[∧]' Ps" (at level 20).
 
 Reserved Notation "'[∨' 'list]' k ↦ x ∈ l , P"
-  (at level 200, l at level 200, k binder, x binder, right associativity,
+  (at level 10, l at level 200, k binder, x binder, P at level 200,
    format "[∨  list]  k ↦ x  ∈  l ,  P").
 Reserved Notation "'[∨' 'list]' x ∈ l , P"
-  (at level 200, l at level 200, x binder, right associativity,
+  (at level 10, l at level 200, x binder, P at level 200,
    format "[∨  list]  x  ∈  l ,  P").
 
 Reserved Notation "'[∨]' Ps" (at level 20).
 
 Reserved Notation "'[∗' 'map]' k ↦ x ∈ m , P"
-  (at level 200, m at level 200, k binder, x binder, right associativity,
+  (at level 10, m at level 200, k binder, x binder, P at level 200,
    format "[∗  map]  k ↦ x  ∈  m ,  P").
 Reserved Notation "'[∗' 'map]' x ∈ m , P"
-  (at level 200, m at level 200, x binder, right associativity,
+  (at level 10, m at level 200, x binder, P at level 200,
    format "[∗  map]  x  ∈  m ,  P").
 
 Reserved Notation "'[∗' 'map]' k ↦ x1 ; x2 ∈ m1 ; m2 , P"
-  (at level 200, m1, m2 at level 200,
-   k binder, x1 binder, x2 binder, right associativity,
+  (at level 10, m1, m2 at level 200,
+   k binder, x1 binder, x2 binder, P at level 200,
    format "[∗  map]  k ↦ x1 ; x2  ∈  m1 ; m2 ,  P").
 Reserved Notation "'[∗' 'map]' x1 ; x2 ∈ m1 ; m2 , P"
-  (at level 200, m1, m2 at level 200, x1 binder, x2 binder, right associativity,
+  (at level 10, m1, m2 at level 200, x1 binder, x2 binder, P at level 200,
    format "[∗  map]  x1 ; x2  ∈  m1 ; m2 ,  P").
 
 Reserved Notation "'[∧' 'map]' k ↦ x ∈ m , P"
-  (at level 200, m at level 200, k binder, x binder, right associativity,
+  (at level 10, m at level 200, k binder, x binder, P at level 200,
    format "[∧  map]  k ↦ x  ∈  m ,  P").
 Reserved Notation "'[∧' 'map]' x ∈ m , P"
-  (at level 200, m at level 200, x binder, right associativity,
+  (at level 10, m at level 200, x binder, P at level 200,
    format "[∧  map]  x  ∈  m ,  P").
 
 Reserved Notation "'[∗' 'set]' x ∈ X , P"
-  (at level 200, X at level 200, x binder, right associativity,
+  (at level 10, X at level 200, x binder, P at level 200,
    format "[∗  set]  x  ∈  X ,  P").
 
 Reserved Notation "'[∗' 'mset]' x ∈ X , P"
-  (at level 200, X at level 200, x binder, right associativity,
+  (at level 10, X at level 200, x binder, P at level 200,
    format "[∗  mset]  x  ∈  X ,  P").
 
 (** Define the scope *)

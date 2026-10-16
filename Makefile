@@ -16,7 +16,7 @@ dune:
 _RocqProject: gen_RocqProject.sh config/paths config/flags config/source-list $(wildcard config/local)
 	@./$< > $@
 
-# Forward most targets to Coq makefile (with some trick to make this phony)
+# Forward most targets to Rocq makefile (with some trick to make this phony)
 %: Makefile.rocq phony
 	@#echo "Forwarding $@"
 	+@$(MAKE) -f Makefile.rocq $@
@@ -32,9 +32,10 @@ clean: Makefile.rocq
 	# and 'make clean' is often needed to remove the .vo files after a dependency update.
 .PHONY: clean
 
-# Create Coq Makefile.
+# Create Rocq Makefile.
+# Need to work around https://github.com/rocq-prover/rocq/issues/22597.
 Makefile.rocq: _RocqProject Makefile
-	"$(COQBIN)rocq" makefile -f _RocqProject -o Makefile.rocq $(EXTRA_COQFILES)
+	"$(COQBIN)rocq" makefile -f _RocqProject -o Makefile.rocq $(EXTRA_COQFILES) $(shell if rocq makefile --no-rocq-package-warning -v >/dev/null 2>&1; then echo --no-rocq-package-warning; fi)
 
 # Install build-dependencies
 OPAMFILES=$(wildcard *.opam)

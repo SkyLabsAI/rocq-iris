@@ -15,10 +15,10 @@ Definition bi_tforall {SI : sidx} {PROP : bi} {TT : tele@{Quant}}
 Global Arguments bi_tforall {SI _ !_} _ /.
 
 Notation "'∃..' x .. y , P" := (bi_texist (λ x, .. (bi_texist (λ y, P)) .. )%I)
-  (at level 200, x binder, y binder, right associativity,
+  (at level 10, x binder, y binder, P at level 200,
   format "∃..  x  ..  y ,  P") : bi_scope.
 Notation "'∀..' x .. y , P" := (bi_tforall (λ x, .. (bi_tforall (λ y, P)) .. )%I)
-  (at level 200, x binder, y binder, right associativity,
+  (at level 10, x binder, y binder, P at level 200,
   format "∀..  x  ..  y ,  P") : bi_scope.
 
 Section telescopes.
