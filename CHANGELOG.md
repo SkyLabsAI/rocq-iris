@@ -5,6 +5,7 @@ lemma.
 
 ## Iris master
 
+Rocq 9.3 is supported now.
 Iris now depends on rocq-elpi (version 3).
 
 **Changes in `algebra`:**
