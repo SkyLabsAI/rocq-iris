@@ -171,7 +171,7 @@ Section lemmas.
     iMod (own_alloc_strong
       (gmap_view_auth (V:=agreeR (leibnizO V)) (DfracOwn 1) ∅) P)
       as (γ) "[% Hauth]"; first done.
-    { apply gmap_view_auth_valid. }
+    { apply gmap_view_auth_valid. done. }
     iExists γ. iSplitR; first done.
     rewrite -big_opM_own_1 -own_op. iApply (own_update with "Hauth").
     etrans; first apply (gmap_view_alloc_big _ (to_agree <$> m) (DfracOwn 1)).
@@ -212,7 +212,7 @@ Section lemmas.
   Lemma ghost_map_auth_valid γ dq m : γ ↪●MAP{dq} m -∗ ⌜✓ dq⌝%Qp.
   Proof.
     unseal. iIntros "Hauth".
-    iDestruct (own_valid with "Hauth") as %?%gmap_view_auth_dfrac_valid.
+    iDestruct (own_valid with "Hauth") as %[? _]%gmap_view_auth_dfrac_valid.
     done.
   Qed.
   Lemma ghost_map_auth_valid_2 γ dq1 dq2 m1 m2 :
@@ -221,8 +221,8 @@ Section lemmas.
     unseal. iIntros "H1 H2".
     (* We need to explicitly specify the Inj instances instead of
     using inj _ since we need to specify [leibnizO] for [to_agree_inj]. *)
-    iCombine "H1 H2" gives %[? ?%(map_fmap_equiv_inj _
-      (to_agree_inj (A:=(leibnizO _))))]%gmap_view_auth_dfrac_op_valid.
+    iCombine "H1 H2" gives %(? & ?%(map_fmap_equiv_inj _
+      (to_agree_inj (A:=(leibnizO _)))) & _)%gmap_view_auth_dfrac_op_valid.
     iPureIntro. split; first done. by fold_leibniz.
   Qed.
   Lemma ghost_map_auth_agree γ dq1 dq2 m1 m2 :

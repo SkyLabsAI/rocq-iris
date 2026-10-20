@@ -1,5 +1,5 @@
 From iris.algebra Require Import auth gmap agree gmap_view swappable
-  auth_swappable gmap_view_swappable_counterexample coPset gset.
+  auth_swappable gmap_view_swappable coPset gset.
 From iris.base_logic.lib Require Import iprop.
 From iris.si_logic Require Import bi.
 Local Arguments uPred_holds {_} !_ _ _ /.
@@ -22,12 +22,9 @@ Global Instance swappable_original_invariant_resources (Σ : gFunctors) :
     (authR (gmapUR positive (agreeR (laterO (iPrePropO Σ)))))
     (prodR coPset_disjR (gset_disjR positive))) := _.
 
-(** Modern [wsat] uses [gmap_view] and admits an authoritative entry that
-    agrees on both [Next True] and [Next False], until a fragment names it.
-    This entry is valid at zero and invalid at one. Full authority for the
-    singleton map is valid at one anyway. A zero-equivalent replacement for
-    a singleton fragment must still mention the key, and validity at one
-    would force the fixed authoritative entry to be valid at one. *)
+(** Regression for the former validity cliff: the contradictory agreement
+    remains valid at zero and invalid at one. The repaired camera rejects
+    authority over that map at one, even when there are no fragments. *)
 Definition inconsistent_invariant_entry (Σ : gFunctors) : agreeR (laterO (iPropO Σ)) :=
   to_agree (Next (True%I : iProp Σ)) ⋅ to_agree (Next (False%I : iProp Σ)).
 
@@ -54,10 +51,14 @@ Proof.
   rewrite -dist_later_S in H. exact (true_false_apart_at_zero Σ H).
 Qed.
 
-Theorem modern_invariant_not_swappable (Σ : gFunctors) :
-  CmraSwappable (gmap_viewR positive (agreeR (laterO (iPropO Σ)))) → False.
+Lemma inconsistent_invariant_authority_invalid1 (Σ : gFunctors) :
+  ✓{1} (gmap_view_auth (DfracOwn 1)
+    {[1%positive := inconsistent_invariant_entry Σ]}) → False.
 Proof.
-  apply (gmap_view_validity_cliff _ 0 (inconsistent_invariant_entry Σ)).
-  - apply inconsistent_invariant_entry_valid0.
-  - apply inconsistent_invariant_entry_invalid1.
+  rewrite gmap_view_auth_dfrac_validN. intros [_ Hm].
+  apply (inconsistent_invariant_entry_invalid1 Σ).
+  move: (Hm 1%positive). by rewrite lookup_singleton_eq.
 Qed.
+
+Global Instance swappable_modern_invariant (Σ : gFunctors) :
+  CmraSwappable (gmap_viewR positive (agreeR (laterO (iPropO Σ)))) := _.
