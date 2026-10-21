@@ -114,8 +114,7 @@ model, you get [∀ n' ≤ n, n' = 0 → P n'], which is equivalent to [P 0].) *
 Definition bi_only_0 {SI : sidx} {PROP : bi} (P : PROP) : PROP := ▷ False → P.
 Global Typeclasses Opaque bi_only_0.
 Global Instance: Params (@bi_only_0) 2 := {}.
-Notation "<only0> P" := (bi_only_0 P)
-  (at level 20, right associativity) : bi_scope.
+Notation "<only0> P" := (bi_only_0 P) : bi_scope.
 
 (* Timeless propositions are propositions that do not depend on the step-index.
    There are two equivalent ways of expressing that a step-indexed proposition

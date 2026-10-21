@@ -70,6 +70,7 @@ Reserved Notation "'□?' p P" (at level 20, p at level 9, P at level 20,
    right associativity, format "'□?' p  P").
 
 Reserved Notation "◇ P" (at level 20, right associativity).
+Reserved Notation "<only0> P" (at level 20, right associativity).
 
 Reserved Notation "■ P" (at level 20, right associativity).
 Reserved Notation "■? p P" (at level 20, p at level 9, P at level 20,
