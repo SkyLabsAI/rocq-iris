@@ -12,6 +12,10 @@ iris/algebra/sts.v
 iris/algebra/numbers.v
 iris/algebra/view.v
 iris/algebra/auth.v
+iris/algebra/swappable.v
+iris/algebra/auth_swappable.v
+iris/algebra/auth_swappable_counterexample.v
+iris/algebra/gmap_view_swappable.v
 iris/algebra/gmap.v
 iris/algebra/chain.v
 iris/algebra/ofe.v
@@ -86,6 +90,7 @@ iris/base_logic/lib/iprop.v
 iris/base_logic/lib/own.v
 iris/base_logic/lib/saved_prop.v
 iris/base_logic/lib/wsat.v
+iris/base_logic/lib/invariant_swappable.v
 iris/base_logic/lib/invariants.v
 iris/base_logic/lib/fancy_updates.v
 iris/base_logic/lib/boxes.v

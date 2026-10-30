@@ -352,12 +352,12 @@ Section algebra.
 
     Lemma gmap_view_both_dfrac_validI dp m k dq v :
       ✓ (gmap_view_auth dp m ⋅ gmap_view_frag k dq v) ⊣⊢
-      ∃ v' dq', ⌜✓ dp⌝ ∧ ⌜m !! k = Some v'⌝ ∧ ✓ (dq', v') ∧
+      ✓ m ∧ ∃ v' dq', ⌜✓ dp⌝ ∧ ⌜m !! k = Some v'⌝ ∧ ✓ (dq', v') ∧
                 Some (dq, v) ≼ Some (dq', v').
     Proof. sbi_unfold=> n. apply: gmap_view_both_dfrac_validN. Qed.
     Lemma gmap_view_both_validI m dp k v :
       ✓ (gmap_view_auth dp m ⋅ gmap_view_frag k (DfracOwn 1) v) ⊣⊢
-      ⌜ ✓ dp ⌝ ∧ ✓ v ∧ m !! k ≡ Some v.
+      ✓ m ∧ ⌜ ✓ dp ⌝ ∧ ✓ v ∧ m !! k ≡ Some v.
     Proof. sbi_unfold=> n. apply gmap_view_both_validN. Qed.
     Lemma gmap_view_both_validI_total `{!CmraTotal V} dp m k dq v :
       ✓ (gmap_view_auth dp m ⋅ gmap_view_frag k dq v) ⊢
