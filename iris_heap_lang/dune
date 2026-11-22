@@ -1,6 +1,6 @@
 (include_subdirs qualified)
 (rocq.theory
  (name iris.heap_lang)
- (package rocq-iris-heap-lang)
+ (public_name rocq-iris-heap-lang)
  (generate_project_file)
- (theories Stdlib Ltac2 stdpp iris))
+ (theories rocq-core.ltac2 rocq-iris rocq-stdlib rocq-stdpp))

@@ -1,6 +1,6 @@
 (include_subdirs qualified)
 (rocq.theory
  (name iris)
- (package rocq-iris)
+ (public_name rocq-iris)
  (generate_project_file)
- (theories Stdlib Ltac2 stdpp))
+ (theories rocq-core.ltac2 rocq-stdlib rocq-stdpp))

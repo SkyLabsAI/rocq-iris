@@ -1,6 +1,11 @@
 (include_subdirs qualified)
 (rocq.theory
  (name iris.unstable)
- (package rocq-iris-unstable)
+ (public_name rocq-iris-unstable)
  (generate_project_file)
- (theories Stdlib Ltac2 stdpp iris iris.heap_lang))
+ (theories
+  rocq-core.ltac2
+  rocq-iris
+  rocq-iris-heap-lang
+  rocq-stdlib
+  rocq-stdpp))

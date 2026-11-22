@@ -1,6 +1,6 @@
 (include_subdirs qualified)
 (rocq.theory
  (name iris.deprecated)
- (package rocq-iris-deprecated)
+ (public_name rocq-iris-deprecated)
  (generate_project_file)
- (theories Stdlib Ltac2 stdpp iris))
+ (theories rocq-core.ltac2 rocq-iris rocq-stdlib rocq-stdpp))
