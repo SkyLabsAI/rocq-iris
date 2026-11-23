@@ -4,8 +4,6 @@
  (public_name rocq-iris-unstable)
  (generate_project_file)
  (theories
-  rocq-core.ltac2
   rocq-iris
   rocq-iris-heap-lang
-  rocq-stdlib
   rocq-stdpp))

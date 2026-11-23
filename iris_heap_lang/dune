@@ -3,4 +3,6 @@
  (name iris.heap_lang)
  (public_name rocq-iris-heap-lang)
  (generate_project_file)
- (theories rocq-core.ltac2 rocq-iris rocq-stdlib rocq-stdpp))
+ (theories
+  rocq-iris
+  rocq-stdpp))
